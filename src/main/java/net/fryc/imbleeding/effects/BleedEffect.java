@@ -1,6 +1,7 @@
 package net.fryc.imbleeding.effects;
 
-import net.fryc.imbleeding.entity.damage.BleedDamageSource;
+import net.fryc.imbleeding.ImBleeding;
+import net.fryc.imbleeding.damage.ModDamageSources;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
@@ -16,13 +17,13 @@ public class BleedEffect extends StatusEffect {
             if (!pLivingEntity.world.isClient()) {
 
                 if(pLivingEntity.getHealth() > 0.5F){
-                    pLivingEntity.damage(BleedDamageSource.bleed(), 0.5F);
+                    pLivingEntity.damage(ModDamageSources.BLEED, 0.5F);
                 }
                 else if(!pLivingEntity.getActiveStatusEffects().containsKey(ModEffects.BLEEDOUT)){
-                    pLivingEntity.addStatusEffect(new StatusEffectInstance(ModEffects.BLEEDOUT, 600, 0));
+                    pLivingEntity.addStatusEffect(new StatusEffectInstance(ModEffects.BLEEDOUT, ImBleeding.config.bleedoutLength/2, 0, false, false, true));
                 }
                 else{
-                    pLivingEntity.addStatusEffect(new StatusEffectInstance(ModEffects.BLEEDOUT, pLivingEntity.getActiveStatusEffects().get(ModEffects.BLEEDOUT).getDuration() + 1200, 0));
+                    pLivingEntity.addStatusEffect(new StatusEffectInstance(ModEffects.BLEEDOUT, pLivingEntity.getActiveStatusEffects().get(ModEffects.BLEEDOUT).getDuration() + ImBleeding.config.bleedoutLength, 0, false, false, true));
                 }
 
             }
