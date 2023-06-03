@@ -2,7 +2,6 @@ package net.fryc.imbleeding.mixin;
 
 import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.effects.ModEffects;
-import net.fryc.imbleeding.tags.ModDamageTypeTags;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -14,7 +13,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.SpiderEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -53,9 +51,9 @@ abstract class PlayerEntityMixin extends LivingEntity {
         Entity attacker = source.getAttacker();
         int duration = 0;
         boolean healthLoss = false;
-        if(amount >= 1 && source.isIn(ModDamageTypeTags.DAMAGE_APPLY_BLEED)){
+        if(amount >= 1 && !source.isExplosive()){
             float reduction = ((ImBleeding.config.armorBleedingProtection * armor) + (ImBleeding.config.toughnessBleedingProtection * toughness))/100; // bleeding reduction in %
-            if(attacker != null && !source.isIn(DamageTypeTags.IS_PROJECTILE)){
+            if(attacker != null && !source.isProjectile()){
                 if(attacker instanceof SpiderEntity){
                     duration = (int) (ImBleeding.config.healthLossLength * amount);
                     healthLoss = true;
@@ -116,7 +114,7 @@ abstract class PlayerEntityMixin extends LivingEntity {
 
 
         //reducing bleeding duration (fire damage)
-        if(source.isIn(DamageTypeTags.IS_FIRE) && ImBleeding.config.fireDamageLowersBleedingDuration){
+        if(source.isFire() && ImBleeding.config.fireDamageLowersBleedingDuration){
             if(player.hasStatusEffect(ModEffects.BLEED_EFFECT)){
                 int amp = player.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier();
                 int dur = player.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getDuration();
@@ -160,7 +158,7 @@ abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     private static boolean checkIfBleedingCanBeUpgraded(DamageSource source){
-        if(source.isIn(DamageTypeTags.IS_PROJECTILE)) return ImBleeding.config.enableArrowEffectUpgrading;
+        if(source.isProjectile()) return ImBleeding.config.enableArrowEffectUpgrading;
         return ImBleeding.config.enableMeleeEffectUpgrading;
     }
 
