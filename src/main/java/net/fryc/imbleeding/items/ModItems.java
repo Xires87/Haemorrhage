@@ -1,18 +1,13 @@
 package net.fryc.imbleeding.items;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.items.custom.BandageItem;
 import net.fryc.imbleeding.items.custom.BalmItem;
 import net.fryc.imbleeding.items.custom.StickyBandageItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class ModItems {
 
@@ -27,19 +22,8 @@ public class ModItems {
             new BalmItem(new FabricItemSettings().maxCount(1)));
 
     private static Item registerItem(String name, Item item){
-        return Registry.register(Registries.ITEM, new Identifier(ImBleeding.MOD_ID, name), item);
+        return Registry.register(Registry.ITEM, new Identifier(ImBleeding.MOD_ID, name), item);
     }
     public static void registerModItems(){
-        ImBleeding.LOGGER.info("Registering Mod Items for " + ImBleeding.MOD_ID);
-        ItemGroup HAEMORRHAGE = FabricItemGroup.builder(new Identifier(ImBleeding.MOD_ID, "haemorrhage_item_group"))
-                .displayName(Text.literal("Haemorrhage"))
-                .icon(() -> new ItemStack(ModItems.BANDAGE))
-                .entries((enabledFeatures, entries, operatorEnabled) -> {
-                    entries.add(ModItems.BANDAGE);
-                    entries.add(ModItems.HONEY_BANDAGE);
-                    entries.add(ModItems.STICKY_BANDAGE);
-                    entries.add(ModItems.HERBAL_BALM);
-                })
-                .build();
     }
 }
