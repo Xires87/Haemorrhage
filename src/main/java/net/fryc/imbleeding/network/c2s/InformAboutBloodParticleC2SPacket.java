@@ -1,5 +1,6 @@
 package net.fryc.imbleeding.network.c2s;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -17,8 +18,13 @@ public class InformAboutBloodParticleC2SPacket {
     public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender){
         if(player.hasStatusEffect(ModEffects.BLEED_EFFECT)){
             ChunkPos chunk = buf.readChunkPos();
+            PacketByteBuf packet = PacketByteBufs.create();
+            packet.writeDouble(buf.readDouble());
+            packet.writeDouble(buf.readDouble());
+            packet.writeDouble(buf.readDouble());
+            packet.writeDouble(buf.readDouble());
             for (ServerPlayerEntity pl : PlayerLookup.tracking(player.getServerWorld(), chunk)) {
-                ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, buf);
+                ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, packet);
             }
         }
     }

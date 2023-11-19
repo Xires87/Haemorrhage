@@ -29,7 +29,7 @@ public class BloodParticle extends SpriteBillboardParticle {
         } else {
             this.velocityY -= 0.04 * (double)this.gravityStrength;
             this.move(this.velocityX, this.velocityY, this.velocityZ);
-            if (this.ascending && this.y == this.prevPosY) {
+            if (this.field_28787 && this.y == this.prevPosY) {
                 this.velocityX *= 1.1;
                 this.velocityZ *= 1.1;
             }
@@ -41,7 +41,6 @@ public class BloodParticle extends SpriteBillboardParticle {
                 this.velocityX *= 0.699999988079071;
                 this.velocityZ *= 0.699999988079071;
             }
-
         }
     }
 
