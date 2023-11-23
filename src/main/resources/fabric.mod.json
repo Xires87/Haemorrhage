@@ -39,7 +39,8 @@
     "fabric-api": "*",
     "minecraft": "~1.20",
     "java": ">=17",
-    "cloth-config": ">=11.0.99"
+    "cloth-config": ">=11.0.99",
+    "unremovableeffects": ">=1.0.0"
   },
   "suggests": {
     "another-mod": "*"
