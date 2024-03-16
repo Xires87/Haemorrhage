@@ -9,14 +9,15 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 public class SoakedBandageRecipe extends SpecialCraftingRecipe {
 
     private static final int BANDAGES_COUNT = 2;
 
-    public SoakedBandageRecipe(CraftingRecipeCategory category) {
-        super(category);
+    public SoakedBandageRecipe(Identifier id, CraftingRecipeCategory category) {
+        super(id, category);
     }
 
     @Override
