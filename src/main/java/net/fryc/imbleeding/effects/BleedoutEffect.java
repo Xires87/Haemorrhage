@@ -3,6 +3,7 @@ package net.fryc.imbleeding.effects;
 import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.damage.ModDamageTypes;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
 
@@ -35,8 +36,8 @@ public class BleedoutEffect extends StatusEffect {
         else return true;
     }
 
-    public void onApplied(LivingEntity entity, int amplifier) {
-        super.onApplied(entity, amplifier);
+    public void onApplied(LivingEntity entity, AttributeContainer attributes, int amplifier) {
+        super.onApplied(entity, attributes, amplifier);
         if (entity.getHealth() > entity.getMaxHealth()) {
             entity.setHealth(entity.getMaxHealth());
         }
