@@ -4,7 +4,8 @@ Length of bleeding depends on damage taken and players armor.
 
 ------------------------------------------------------------
 
-# [CurseForge](https://www.curseforge.com/minecraft/mc-mods/haemorrhage)
+### [CurseForge](https://www.curseforge.com/minecraft/mc-mods/haemorrhage)
+### [Modrinth](https://modrinth.com/mod/haemorrhage)
 
 ------------------------------------------------------------
 
