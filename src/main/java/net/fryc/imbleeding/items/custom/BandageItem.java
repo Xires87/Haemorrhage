@@ -35,7 +35,7 @@ public class BandageItem extends Item {
     }
 
     public int getMaxUseTime(ItemStack stack) {
-        return 40;
+        return stack.getItem() == ModItems.STICKY_BANDAGE ? 15 : 40;
     }
 
     public UseAction getUseAction(ItemStack stack) {
