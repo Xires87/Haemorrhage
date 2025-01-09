@@ -19,8 +19,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BleedingHelper {
 
-    public static boolean shouldApplyDarkness(LivingEntity dys) {
-        return dys instanceof PlayerEntity;
+    public static boolean shouldApplyDarkness(LivingEntity entity) {
+        return entity instanceof PlayerEntity;
     }
 
     public static void applyDarkness(LivingEntity entity){
