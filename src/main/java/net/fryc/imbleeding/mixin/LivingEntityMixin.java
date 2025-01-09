@@ -31,15 +31,11 @@ import java.util.concurrent.ThreadLocalRandom;
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin extends Entity implements Attackable {
 
-    public boolean shouldShake = false;
-
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
 
 
-
-    //undead enemies cant get bleeding
     @Inject(method = "canHaveStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;)Z", at = @At("HEAD"), cancellable = true)
     private void undeadCantBleed(StatusEffectInstance effect, CallbackInfoReturnable<Boolean> ret) {
         LivingEntity dys = ((LivingEntity)(Object)this);
