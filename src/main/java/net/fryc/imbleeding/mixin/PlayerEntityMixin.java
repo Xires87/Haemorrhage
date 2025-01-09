@@ -1,17 +1,11 @@
 package net.fryc.imbleeding.mixin;
 
 import net.fryc.imbleeding.ImBleeding;
-import net.fryc.imbleeding.tags.ModDamageTypeTags;
-import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.fryc.imbleeding.util.BleedingHelper;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.SpiderEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,62 +19,34 @@ abstract class PlayerEntityMixin extends LivingEntity {
         super(entityType, world);
     }
 
-    //Causes player to bleed after taking damage and gives darkness at low hp
+    // PlayerEntity overrides applyDamage, so I have to mixin here too
     @Inject(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", at = @At("TAIL"))
-    public void applyDamageEffects(DamageSource source, float amount, CallbackInfo ci) {
-        PlayerEntity player = ((PlayerEntity) (Object) this);
+    public void applyDamageEffectsOnPlayer(DamageSource source, float amount, CallbackInfo ci) {
+        if(BleedingHelper.shouldApplyDarkness(this)){
+            BleedingHelper.applyDarkness(this);
+        }
 
-        //applying darkness
-        BleedingHelper.applyDarknessToPlayer(player);
-
-        float toughness = (int) (player.getAttributes().getValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
-        int armor = (int) (player.getAttributes().getValue(EntityAttributes.GENERIC_ARMOR));
-
-        //calculating bleeding duration
-        Entity attacker = source.getAttacker();
-        int duration = 0;
-        boolean healthLoss = false;
-        if(amount >= 1 && source.isIn(ModDamageTypeTags.DAMAGE_APPLY_BLEED)){
-            float reduction = ((ImBleeding.config.armorBleedingProtection * armor) + (ImBleeding.config.toughnessBleedingProtection * toughness))/100; // bleeding reduction in %
-            if(attacker != null && !source.isIn(DamageTypeTags.IS_PROJECTILE)){
-                if(attacker instanceof SpiderEntity){
-                    duration = (int) (ImBleeding.config.healthLossLength * amount);
-                    healthLoss = true;
-                }
-                else if(!attacker.getType().isIn(ModEntityTypeTags.NO_BLEEDING_APPLY_MOBS)){
-                    duration = (int) (ImBleeding.config.meleeBleedLength * amount);
-                    if(attacker instanceof LivingEntity livingEntity){
-                        if(livingEntity.getMainHandStack().isDamageable()){
-                            duration += duration * 0.17;
-                        }
-                    }
-                }
+        if(BleedingHelper.canGetBleeding(this)){
+            if(BleedingHelper.canApplyBleeding(source, amount)){
+                BleedingHelper.applyBleeding(this, source, amount);
             }
-            if(source.getSource() != null){
-                if(source.getSource().getType().isIn(ModEntityTypeTags.BLEEDING_PROJECTILES)){
-                    duration = (int) (ImBleeding.config.arrowBleedLength * amount);
-                }
+        }
+
+        if(BleedingHelper.canGetHealthLoss(this)){
+            if(BleedingHelper.canApplyHealthLoss(source)){
+                BleedingHelper.applyHealthLoss(this, source, amount);
             }
-
-            duration -= duration * reduction;
         }
 
-        //applying bleeding or health loss
-        if(duration > 19){
-            BleedingHelper.applyBleedingOrHealthLoss(player, duration, healthLoss, source, amount);
+        if(BleedingHelper.shouldReduceBleedingWithFire(source, this.getWorld())){
+            BleedingHelper.reduceBleedingWithFire(this);
         }
 
-        //reducing bleeding duration (fire damage)
-        if(source.isIn(DamageTypeTags.IS_FIRE) && ImBleeding.config.fireDamageLowersBleedingDuration){
-            BleedingHelper.reduceBleedingWithFire(player);
-        }
-
-        if(BleedingHelper.shouldApplyBrokenEffect(source, amount, player)){
-            BleedingHelper.applyBrokenEffect(player, amount);
+        if(BleedingHelper.shouldApplyBrokenEffect(source, amount, this)){
+            BleedingHelper.applyBrokenEffect(this, amount);
         }
 
     }
-
 
     //Stops food healing while bleeding
     @Inject(method = "canFoodHeal()Z", at = @At("RETURN"), cancellable = true)
@@ -94,8 +60,7 @@ abstract class PlayerEntityMixin extends LivingEntity {
     //Gives blindness if player has 1 hp or lower
     @Inject(method = "tick()V", at = @At("TAIL"))
     public void setBlindness(CallbackInfo info){
-        PlayerEntity player = ((PlayerEntity) (Object) this);
-        BleedingHelper.applyBlindnessToPlayer(player);
+        BleedingHelper.applyBlindness(this);
     }
 
 }
