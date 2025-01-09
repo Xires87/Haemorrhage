@@ -1,6 +1,10 @@
 package net.fryc.imbleeding.mixin;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fryc.imbleeding.effects.ModEffects;
+import net.fryc.imbleeding.network.ModPackets;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.fryc.imbleeding.tags.ModItemTags;
 import net.fryc.imbleeding.util.BleedingHelper;
@@ -18,6 +22,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin extends Entity implements Attackable {
@@ -101,6 +107,26 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
             BleedingHelper.applyBrokenEffect(dys, amount);
         }
 
+    }
+
+    @Inject(method = "tick()V", at = @At("TAIL"))
+    private void spawnBloodParticles(CallbackInfo info) {
+        LivingEntity dys = ((LivingEntity) (Object) this);
+        if(!dys.getWorld().isClient()){
+            if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
+                if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
+                    Vec3d vec3d = dys.getVelocity();
+                    PacketByteBuf buf = PacketByteBufs.create();
+                    buf.writeDouble(dys.getX());
+                    buf.writeDouble(dys.getY());
+                    buf.writeDouble(dys.getZ());
+                    buf.writeDouble(vec3d.getY()-0.05);
+                    for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
+                        ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, buf);
+                    }
+                }
+            }
+        }
     }
 
 }
