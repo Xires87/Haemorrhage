@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin extends Entity implements Attackable {
 
+    public boolean shouldShake = false;
 
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -39,8 +40,13 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
     @Inject(method = "canHaveStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;)Z", at = @At("HEAD"), cancellable = true)
     private void undeadCantBleed(StatusEffectInstance effect, CallbackInfoReturnable<Boolean> ret) {
         LivingEntity dys = ((LivingEntity)(Object)this);
-        if(dys.getType().isIn(ModEntityTypeTags.BLEED_RESISTANT_TO)){
-            if(effect.getEffectType() == ModEffects.BLEED_EFFECT || effect.getEffectType() == ModEffects.BLEEDOUT){
+        if(effect.getEffectType() == ModEffects.BLEED_EFFECT || effect.getEffectType() == ModEffects.BLEEDOUT){
+            if(dys.getType().isIn(ModEntityTypeTags.BLEED_RESISTANT_TO)){
+                ret.setReturnValue(false);
+            }
+        }
+        else if(effect.getEffectType() == ModEffects.HEALTH_LOSS){
+            if(dys.getType().isIn(ModEntityTypeTags.HEALTH_LOSS_RESISTANT_TO)){
                 ret.setReturnValue(false);
             }
         }
@@ -128,5 +134,4 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
             }
         }
     }
-
 }
