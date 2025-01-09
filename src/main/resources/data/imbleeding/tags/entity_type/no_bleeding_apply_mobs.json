@@ -6,6 +6,8 @@
     "minecraft:silverfish",
     "minecraft:slime",
     "minecraft:magma_cube",
-    "minecraft:bee"
+    "minecraft:bee",
+    "minecraft:spider",
+    "minecraft:cave_spider"
   ]
 }
