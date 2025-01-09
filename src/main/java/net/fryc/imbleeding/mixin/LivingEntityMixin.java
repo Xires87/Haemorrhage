@@ -1,8 +1,14 @@
 package net.fryc.imbleeding.mixin;
 
 import net.fryc.imbleeding.effects.ModEffects;
+import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.fryc.imbleeding.tags.ModItemTags;
-import net.minecraft.entity.*;
+import net.fryc.imbleeding.util.BleedingHelper;
+import net.minecraft.entity.Attackable;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.world.World;
@@ -26,7 +32,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
     @Inject(method = "canHaveStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;)Z", at = @At("HEAD"), cancellable = true)
     private void undeadCantBleed(StatusEffectInstance effect, CallbackInfoReturnable<Boolean> ret) {
         LivingEntity dys = ((LivingEntity)(Object)this);
-        if(dys.getGroup() == EntityGroup.UNDEAD){
+        if(dys.getType().isIn(ModEntityTypeTags.BLEED_RESISTANT_TO)){
             if(effect.getEffectType() == ModEffects.BLEED_EFFECT || effect.getEffectType() == ModEffects.BLEEDOUT){
                 ret.setReturnValue(false);
             }
@@ -63,6 +69,37 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
                 dys.removeStatusEffect(ModEffects.BLEEDOUT);
             }
         }
+    }
+
+
+    @Inject(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", at = @At("TAIL"))
+    public void applyDamageEffects(DamageSource source, float amount, CallbackInfo ci) {
+        LivingEntity dys = ((LivingEntity) (Object) this);
+
+        if(BleedingHelper.shouldApplyDarkness(dys)){
+            BleedingHelper.applyDarkness(dys);
+        }
+
+        if(BleedingHelper.canGetBleeding(dys)){
+            if(BleedingHelper.canApplyBleeding(source, amount)){
+                BleedingHelper.applyBleeding(dys, source, amount);
+            }
+        }
+
+        if(BleedingHelper.canGetHealthLoss(dys)){
+            if(BleedingHelper.canApplyHealthLoss(source)){
+                BleedingHelper.applyHealthLoss(dys, source, amount);
+            }
+        }
+
+        if(BleedingHelper.shouldReduceBleedingWithFire(source, dys.getWorld())){
+            BleedingHelper.reduceBleedingWithFire(dys);
+        }
+
+        if(BleedingHelper.shouldApplyBrokenEffect(source, amount, dys)){
+            BleedingHelper.applyBrokenEffect(dys, amount);
+        }
+
     }
 
 }
