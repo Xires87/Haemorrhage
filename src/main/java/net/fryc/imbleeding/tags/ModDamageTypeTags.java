@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 public final class ModDamageTypeTags {
 
     public static TagKey<DamageType> DAMAGE_APPLY_BLEED = register("damage_apply_bleed");
+    public static TagKey<DamageType> DAMAGE_APPLY_HEALTH_LOSS = register("damage_apply_health_loss");
 
 
     private ModDamageTypeTags(){
