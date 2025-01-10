@@ -1,12 +1,6 @@
 {
   "values": [
-    "#minecraft:skeletons",
-    "minecraft:zombie",
-    "minecraft:husk",
-    "minecraft:drowned",
-    "minecraft:zombified_piglin",
-    "minecraft:phantom",
-    "minecraft:wither",
+    "#minecraft:undead",
     "minecraft:ender_dragon",
     "minecraft:iron_golem",
     "minecraft:enderman",
