@@ -16,7 +16,13 @@ Length of bleeding depends on damage taken and players armor.
 # Datapacks:
 Use following tags for:
 * excluding mobs from giving Bleeding: `imbleeding/data/tags/entity_types/no_bleeding_apply_mobs.json`
-* selecting projectiles that cause Bleeding (won't work if projectile deals fire damage): `imbleeding/data/tags/entity_types/projectiles_causing_bleeding.json`
+* selecting which damage types should apply Bleeding: `imbleeding/data/tags/damage_type/damage_apply_bleed.json`
+* selecting which projectiles cause Bleeding (damage type of projectile must be in damage_apply_bleed tag to work properly): `imbleeding/data/tags/entity_types/projectiles_causing_bleeding.json`
+* selecting which mobs get Bleeding after taking damage: `imbleeding/data/tags/entity_types/can_bleed.json`
+* selecting which mobs are immune to Bleeding: `imbleeding/data/tags/entity_types/bleed_resistant_to.json`
+* selecting which damage types should apply Health Loss: `imbleeding/data/tags/damage_type/damage_apply_health_loss.json`
+* selecting which mobs apply Health Loss: `imbleeding/data/tags/entity_types/projectiles_causing_bleeding.json`
+* selecting which mobs are immune to Health Loss: `imbleeding/data/tags/entity_types/health_loss_resistant_to.json`
 * making items remove:
   1. Bleeding: `imbleeding/data/tags/items/items_remove_bleeding.json`
   2. Bleedout: `imbleeding/data/tags/items/items_remove_bleedout.json`
