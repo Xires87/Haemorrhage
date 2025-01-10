@@ -79,13 +79,13 @@ public class BleedingHelper {
             duration -= duration * reduction;
 
             if(duration > 19){
-                StatusEffect effect = healthLoss ? ModEffects.HEALTH_LOSS : ModEffects.BLEED_EFFECT;
+                RegistryEntry<StatusEffect> effect = healthLoss ? ModEffects.HEALTH_LOSS : ModEffects.BLEED_EFFECT;
                 BleedingHelper.applyOrExtendEffect(entity, duration, effect, source, amount);
             }
         }
     }
 
-    public static void applyOrExtendEffect(LivingEntity entity, int duration, StatusEffect effect, DamageSource source, float amount){
+    public static void applyOrExtendEffect(LivingEntity entity, int duration, RegistryEntry<StatusEffect> effect, DamageSource source, float amount){
         if(!entity.hasStatusEffect(effect)){
             entity.addStatusEffect(new StatusEffectInstance(effect, duration, 0, false, false, true));
         }

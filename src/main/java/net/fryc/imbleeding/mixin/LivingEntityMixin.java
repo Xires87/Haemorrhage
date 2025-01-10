@@ -1,10 +1,9 @@
 package net.fryc.imbleeding.mixin;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fryc.imbleeding.effects.ModEffects;
-import net.fryc.imbleeding.network.ModPackets;
+import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.fryc.imbleeding.tags.ModItemTags;
 import net.fryc.imbleeding.util.BleedingHelper;
@@ -15,7 +14,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.registry.tag.EntityTypeTags;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -117,14 +118,14 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
         if(!dys.getWorld().isClient()){
             if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
                 if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
-                    Vec3d vec3d = dys.getVelocity();
-                    PacketByteBuf buf = PacketByteBufs.create();
-                    buf.writeDouble(dys.getX());
-                    buf.writeDouble(dys.getY());
-                    buf.writeDouble(dys.getZ());
-                    buf.writeDouble(vec3d.getY()-0.05);
+                    Vec3d vec3d = this.getVelocity();
                     for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
-                        ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, buf);
+                        ServerPlayNetworking.send(pl, new CreateBloodParticlePayload(
+                                dys.getX(),
+                                dys.getY(),
+                                dys.getZ(),
+                                vec3d.getY()-0.05
+                        ));
                     }
                 }
             }
