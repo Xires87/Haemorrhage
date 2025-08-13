@@ -61,11 +61,6 @@ public class ImbleedingConfig implements ConfigData {
     public int bleedoutLength = 1200;
 
     @ConfigEntry.Category("bleeding_length")
-    public float armorBleedingProtection = 3;
-    @ConfigEntry.Category("bleeding_length")
-    public float toughnessBleedingProtection = 4;
-
-    @ConfigEntry.Category("bleeding_length")
     @ConfigEntry.Gui.Tooltip
     public int baseBrokenLength = 600;
 
