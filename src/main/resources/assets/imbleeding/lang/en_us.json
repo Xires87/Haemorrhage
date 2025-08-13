@@ -13,6 +13,8 @@
 
   "death.attack.bleed": "%1$s bled out",
 
+  "hammersandtables.attribute.name.generic.bleeding_protection": "Bleeding Protection",
+
   "item.imbleeding.soaked_bandage.effect.water": "Wet Bandage",
   "item.imbleeding.soaked_bandage.effect.fire_resistance": "Bandage of Fire Resistance",
   "item.imbleeding.soaked_bandage.effect.harming": "Bandage of Harming",
