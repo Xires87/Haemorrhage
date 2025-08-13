@@ -7,8 +7,6 @@ import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class CreateBloodParticleS2CPacket {
 
     public static void receive(CreateBloodParticlePayload payload, ClientPlayNetworking.Context context){
