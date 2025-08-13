@@ -15,6 +15,8 @@
 
   "death.attack.bleed": "%1$s wykrwawił się",
 
+  "hammersandtables.attribute.name.generic.bleeding_protection": "ochrony przed krwawieniem",
+
   "effect.imbleeding.bleed": "Krwawienie",
   "effect.imbleeding.bleedout": "Wykrwawienie",
   "effect.imbleeding.health_loss": "Utrata Zdrowia",
