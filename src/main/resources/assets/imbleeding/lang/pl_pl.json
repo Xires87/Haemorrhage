@@ -82,9 +82,6 @@
 
   "text.autoconfig.imbleeding.option.minFallDamageTakenToGetBroken": "Próg obrażeń od upadku po którym otrzymuje się efekt Połamany",
 
-  "text.autoconfig.imbleeding.option.armorBleedingProtection": "Redukcja krwawienia na punkt pancerza (%)",
-  "text.autoconfig.imbleeding.option.toughnessBleedingProtection": "Redukcja krwawienia na punkt wytrzymałości (Armor toughness) (%)",
-
   "text.autoconfig.imbleeding.option.bleedingDamage": "Obrażenia zadawane przez krwawienie",
   "text.autoconfig.imbleeding.option.bleedingDamageFrequency": "Częstość zadawania obrażeń przez krwawienie",
   "text.autoconfig.imbleeding.option.bleedingDamageFrequency.@Tooltip": "20 = 1s. Im wyższa ta wartość, tym dłużej zajmuje wykrwawianie się",

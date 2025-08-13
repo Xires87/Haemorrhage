@@ -83,9 +83,6 @@
 
   "text.autoconfig.imbleeding.option.minFallDamageTakenToGetBroken": "Fall damage threshold after which player gets Broken",
 
-  "text.autoconfig.imbleeding.option.armorBleedingProtection": "Bleeding reduction per armor point (%)",
-  "text.autoconfig.imbleeding.option.toughnessBleedingProtection": "Bleeding reduction per toughness point (%)",
-
   "text.autoconfig.imbleeding.option.bleedingDamage": "Damage dealt by bleeding",
   "text.autoconfig.imbleeding.option.bleedingDamageFrequency": "Frequency of dealing damage by bleeding",
   "text.autoconfig.imbleeding.option.bleedingDamageFrequency.@Tooltip": "20 = 1s. The higher this value, the more time it takes to bleed out",
