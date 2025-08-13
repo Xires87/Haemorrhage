@@ -14,6 +14,7 @@ public final class ModItemTags {
     public static TagKey<Item> ITEMS_REMOVE_HEALTH_LOSS = register( "items_remove_health_loss");
     public static TagKey<Item> ITEMS_REMOVE_BROKEN = register( "items_remove_broken");
     public static TagKey<Item> ITEMS_REMOVE_BLEEDOUT = register( "items_remove_bleedout");
+    public static TagKey<Item> WEAPONS_PIERCE_BLEEDING_PROTECTION = register( "weapons_pierce_bleeding_protection");
 
 
     private ModItemTags(){
