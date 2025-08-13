@@ -15,7 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -126,9 +125,12 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
                 if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
                     Vec3d vec3d = dys.getVelocity();
                     PacketByteBuf buf = PacketByteBufs.create();
-                    buf.writeDouble(dys.getX());
-                    buf.writeDouble(dys.getY());
-                    buf.writeDouble(dys.getZ());
+                    float x = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
+                    float y = ThreadLocalRandom.current().nextFloat() + 0.1f;
+                    float z = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
+                    buf.writeDouble(dys.getX() + x);
+                    buf.writeDouble(dys.getY() + y);
+                    buf.writeDouble(dys.getZ() + z);
                     buf.writeDouble(vec3d.getY()-0.05);
                     for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
                         ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, buf);
