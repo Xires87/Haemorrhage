@@ -20,7 +20,6 @@ public class ModEntityAttributes {
 
 
     public static void registerModEntityAttributes(){
-        ImBleeding.LOGGER.warn(BLEEDING_PROTECTION_MODIFIER_UUID.toString());
     }
 
 
