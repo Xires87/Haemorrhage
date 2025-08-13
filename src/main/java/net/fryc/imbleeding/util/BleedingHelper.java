@@ -1,11 +1,12 @@
 package net.fryc.imbleeding.util;
 
 import net.fryc.imbleeding.ImBleeding;
+import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.tags.ModDamageTypeTags;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
+import net.fryc.imbleeding.tags.ModItemTags;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -52,31 +53,38 @@ public class BleedingHelper {
     }
 
     public static void applyBleedingOrHealthLoss(LivingEntity entity, DamageSource source, float amount, boolean healthLoss){
-        float toughness = (int) (entity.getAttributes().getValue(EntityAttributes.GENERIC_ARMOR_TOUGHNESS));
-        int armor = (int) (entity.getAttributes().getValue(EntityAttributes.GENERIC_ARMOR));
         int duration;
-        // effect reduction in %
-        float reduction = ((ImBleeding.config.armorBleedingProtection * armor) + (ImBleeding.config.toughnessBleedingProtection * toughness))/100;
+        double reduction = entity.getAttributeValue(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION)/100;
+        boolean melee = !source.isIn(DamageTypeTags.IS_PROJECTILE);
+        boolean meleeWithTool = false;
+
+        if(melee && source.getAttacker() != null && source.getAttacker() instanceof LivingEntity livingEntity){
+            if(livingEntity.getMainHandStack().isIn(ModItemTags.WEAPONS_PIERCE_BLEEDING_PROTECTION)){
+                reduction -= 0.15;
+                meleeWithTool = true;
+            }
+            else if(livingEntity.getMainHandStack().isDamageable()){
+                meleeWithTool = true;
+            }
+        }
 
         if(reduction < 1){
             if(healthLoss){
                 duration = (int) (ImBleeding.config.healthLossLength * amount);
             }
             else {
-                if(source.isIn(DamageTypeTags.IS_PROJECTILE)){
+                if(!melee){
                     duration = (int) (ImBleeding.config.arrowBleedLength * amount);
                 }
                 else {
                     duration = (int) (ImBleeding.config.meleeBleedLength * amount);
-                    if(source.getAttacker() != null && source.getAttacker() instanceof LivingEntity livingEntity){
-                        if(livingEntity.getMainHandStack().isDamageable()){
-                            duration += duration * 0.17;
-                        }
+                    if(meleeWithTool){
+                        duration += (int) (duration * 0.10);
                     }
                 }
             }
 
-            duration -= duration * reduction;
+            duration -= (int) (duration * reduction);
 
             if(duration > 19){
                 RegistryEntry<StatusEffect> effect = healthLoss ? ModEffects.HEALTH_LOSS : ModEffects.BLEED_EFFECT;
@@ -96,7 +104,7 @@ public class BleedingHelper {
                 bleedingUpgradeChance = (int)(ImBleeding.config.baseChanceToUpgradeBleedingOrHealthLoss * (amount + 1));
             }
             else{
-                bleedingUpgradeChance = (int)((1+(ImBleeding.config.baseChanceToUpgradeBleedingOrHealthLoss/10)) * (amount + 1));
+                bleedingUpgradeChance = (int)((1+((float) ImBleeding.config.baseChanceToUpgradeBleedingOrHealthLoss /10)) * (amount + 1));
             }
             if(amp < 3 && checkIfBleedingCanBeUpgraded(source)){
                 if(ThreadLocalRandom.current().nextInt(100) >= 100 - bleedingUpgradeChance){
@@ -104,10 +112,10 @@ public class BleedingHelper {
                 }
             }
             if(entity.getActiveStatusEffects().get(effect).getDuration() > duration){
-                duration -= duration * 0.75;
+                duration -= (int) (duration * 0.75);
             }
             else{
-                duration -= entity.getActiveStatusEffects().get(effect).getDuration() * 0.75;
+                duration -= (int) (entity.getActiveStatusEffects().get(effect).getDuration() * 0.75);
             }
             duration += entity.getActiveStatusEffects().get(effect).getDuration();
 
