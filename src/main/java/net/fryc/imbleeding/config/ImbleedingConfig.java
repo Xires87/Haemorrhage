@@ -58,6 +58,14 @@ public class ImbleedingConfig implements ConfigData {
 
     @ConfigEntry.Category("bleeding_length")
     @ConfigEntry.Gui.Tooltip
+    public double sharpWeaponBleedProtPiercing = 0.15;
+
+    @ConfigEntry.Category("bleeding_length")
+    @ConfigEntry.Gui.Tooltip
+    public double anyWeaponBleedLengthIncrease = 0.10;
+
+    @ConfigEntry.Category("bleeding_length")
+    @ConfigEntry.Gui.Tooltip
     public int bleedoutLength = 1200;
 
     @ConfigEntry.Category("bleeding_length")

@@ -60,7 +60,7 @@ public class BleedingHelper {
 
         if(melee && source.getAttacker() != null && source.getAttacker() instanceof LivingEntity livingEntity){
             if(livingEntity.getMainHandStack().isIn(ModItemTags.WEAPONS_PIERCE_BLEEDING_PROTECTION)){
-                reduction -= 0.15;
+                reduction -= ImBleeding.config.sharpWeaponBleedProtPiercing;
                 meleeWithTool = true;
             }
             else if(livingEntity.getMainHandStack().isDamageable()){
@@ -79,7 +79,7 @@ public class BleedingHelper {
                 else {
                     duration = (int) (ImBleeding.config.meleeBleedLength * amount);
                     if(meleeWithTool){
-                        duration += (int) (duration * 0.10);
+                        duration += (int) (duration * ImBleeding.config.anyWeaponBleedLengthIncrease);
                     }
                 }
             }
