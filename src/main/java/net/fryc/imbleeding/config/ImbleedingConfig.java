@@ -3,8 +3,9 @@ package net.fryc.imbleeding.config;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import net.fryc.imbleeding.ImBleeding;
 
-@Config(name = "imbleeding")
+@Config(name = "imbleeding/" + ImBleeding.MOD_ID)
 public class ImbleedingConfig implements ConfigData {
 
 
