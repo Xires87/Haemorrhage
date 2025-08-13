@@ -8,6 +8,7 @@
     "PlayerEntityMixin",
     "HoneyBottleMixin",
     "ServerWorldMixin",
+    "ArmorItemMixin",
     "compatibility/CombatRollCompatibilityMixin"
   ],
   "client": [

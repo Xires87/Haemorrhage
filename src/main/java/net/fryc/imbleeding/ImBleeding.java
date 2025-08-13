@@ -3,6 +3,7 @@ package net.fryc.imbleeding;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.config.ImbleedingConfig;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.effects.particles.ModParticles;
@@ -22,6 +23,7 @@ public class ImBleeding implements ModInitializer {
 		AutoConfig.register(ImbleedingConfig.class, GsonConfigSerializer::new);
 		config = AutoConfig.getConfigHolder(ImbleedingConfig.class).getConfig();
 
+		ModEntityAttributes.registerModEntityAttributes();
 		ModRecipeSerializers.registerModRecipeSerializers();
 		ModEffects.registerEffects();
 		ModItems.registerModItems();

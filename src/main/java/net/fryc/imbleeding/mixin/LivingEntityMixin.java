@@ -1,8 +1,10 @@
 package net.fryc.imbleeding.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.network.ModPackets;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
@@ -12,6 +14,8 @@ import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -133,4 +137,14 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
             }
         }
     }
+
+
+    @ModifyReturnValue(
+            method = "createLivingAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;",
+            at = @At("RETURN")
+    )
+    private static DefaultAttributeContainer.Builder addBleedingProtectionToAttributes(DefaultAttributeContainer.Builder original) {
+        return original.add(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, 4.0);
+    }
+
 }
