@@ -7,11 +7,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
-import java.util.UUID;
-
 public class ModEntityAttributes {
-
-    public static final UUID BLEEDING_PROTECTION_MODIFIER_UUID = UUID.fromString("ca8d1f50-faf7-49ff-bb9e-6b185d99224a");
 
     public static final EntityAttribute GENERIC_BLEEDING_PROTECTION = register(
             "generic.bleeding_protection",
