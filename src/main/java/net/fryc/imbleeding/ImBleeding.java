@@ -3,12 +3,14 @@ package net.fryc.imbleeding;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.config.ImbleedingConfig;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.effects.particles.ModParticles;
 import net.fryc.imbleeding.items.ModItems;
 import net.fryc.imbleeding.recipes.ModRecipeSerializers;
+import net.fryc.imbleeding.util.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,11 @@ public class ImBleeding implements ModInitializer {
 		ModEffects.registerEffects();
 		ModItems.registerModItems();
 		ModParticles.registerModParticles();
+
+		// I want to make sure all mods are loaded before I save the file (couldn't find better way)
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			FileHelper.saveArmorBleedProtMap();
+		});
 
 	}
 }
