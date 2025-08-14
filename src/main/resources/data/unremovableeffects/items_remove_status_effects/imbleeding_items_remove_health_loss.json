@@ -1,0 +1,9 @@
+{
+  "items": [
+    "minecraft:honey_bottle",
+    "imbleeding:honey_bandage"
+  ],
+  "status_effects": [
+    "imbleeding:health_loss"
+  ]
+}

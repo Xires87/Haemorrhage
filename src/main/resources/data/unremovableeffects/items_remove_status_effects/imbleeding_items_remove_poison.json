@@ -1,0 +1,9 @@
+{
+  "items": [
+    "imbleeding:herbal_balm",
+    "imbleeding:honey_bandage"
+  ],
+  "status_effects": [
+    "minecraft:poison"
+  ]
+}
