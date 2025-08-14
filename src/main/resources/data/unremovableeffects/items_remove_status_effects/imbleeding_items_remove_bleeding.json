@@ -1,0 +1,12 @@
+{
+  "items": [
+    "imbleeding:bandage",
+    "imbleeding:honey_bandage",
+    "imbleeding:sticky_bandage",
+    "imbleeding:soaked_bandage",
+    "minecraft:enchanted_golden_apple"
+  ],
+  "status_effects": [
+    "imbleeding:bleed"
+  ]
+}

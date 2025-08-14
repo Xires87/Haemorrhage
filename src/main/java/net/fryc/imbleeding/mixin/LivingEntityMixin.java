@@ -61,6 +61,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
         }
     }
 
+    /* It is done via unremovable effects now
     @Inject(method = "consumeItem()V", at = @At(value = "INVOKE", target =
             "Lnet/minecraft/entity/LivingEntity;spawnConsumptionEffects(Lnet/minecraft/item/ItemStack;I)V", shift = At.Shift.AFTER))
     private void removeEffectsAfterUsingItem(CallbackInfo info) {
@@ -84,6 +85,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
             }
         }
     }
+     */
 
 
     @Inject(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", at = @At("TAIL"))
