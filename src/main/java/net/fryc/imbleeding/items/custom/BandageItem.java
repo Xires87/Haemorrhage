@@ -21,11 +21,7 @@ public class BandageItem extends Item {
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         super.finishUsing(stack, world, user);
         if (!world.isClient) {
-            if(this == ModItems.HONEY_BANDAGE){
-                user.removeStatusEffect(StatusEffects.POISON);
-                user.heal(3f);
-            }
-            user.heal(2f);
+            user.heal(stack.getItem() == ModItems.HONEY_BANDAGE ? 5f : 2f);
             if(!((PlayerEntity)user).getAbilities().creativeMode) stack.setCount(stack.getCount() - 1);
             user.getWorld().playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, SoundCategory.PLAYERS, 1.0F, 1.0F);
             ((PlayerEntity) user).getItemCooldownManager().set(this, 8);
