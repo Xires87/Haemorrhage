@@ -23,8 +23,9 @@ Use following tags for:
 * selecting which damage types should apply Health Loss: `imbleeding/data/tags/damage_type/damage_apply_health_loss.json`
 * selecting which mobs apply Health Loss: `imbleeding/data/tags/entity_types/projectiles_causing_bleeding.json`
 * selecting which mobs are immune to Health Loss: `imbleeding/data/tags/entity_types/health_loss_resistant_to.json`
-* making items remove:
-  1. Bleeding: `imbleeding/data/tags/items/items_remove_bleeding.json`
-  2. Bleedout: `imbleeding/data/tags/items/items_remove_bleedout.json`
-  3. Health Loss: `imbleeding/data/tags/items/items_remove_health_loss.json`
-  4. Broken: `imbleeding/data/tags/items/items_remove_broken.json`
+* ~~making items remove~~:
+  1. ~~Bleeding: `imbleeding/data/tags/items/items_remove_bleeding.json`~~
+  2. ~~Bleedout: `imbleeding/data/tags/items/items_remove_bleedout.json`~~
+  3. ~~Health Loss: `imbleeding/data/tags/items/items_remove_health_loss.json`~~
+  4. ~~Broken: `imbleeding/data/tags/items/items_remove_broken.json`~~
+* ^^ see [https://github.com/Xires87/UnremovableEffects](https://github.com/Xires87/UnremovableEffects?tab=readme-ov-file#making-items-remove-selected-status-effects)
