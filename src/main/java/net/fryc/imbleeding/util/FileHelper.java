@@ -16,8 +16,6 @@ public class FileHelper {
 
     public static final HashMap<String, ArmorBleedProt> ARMOR_BLEED_PROT_MAP = FileHelper.getArmorBleedProtMap();
 
-    private static boolean shouldSaveFile = false;
-
 
     public static HashMap<String, ArmorBleedProt> getArmorBleedProtMap() {
         File file = new File(FabricLoader.getInstance().getConfigDir().toString() + "/imbleeding/armor_bleed_prot_values.json");
@@ -31,24 +29,20 @@ public class FileHelper {
                 ImBleeding.LOGGER.error("An error occurred while reading the following file: '" + file.getPath() + "'", e);
             }
         }
-        else {
-            shouldSaveFile = true;
-        }
 
         return new HashMap<>();
     }
 
     public static void saveArmorBleedProtMap() {
-        if(shouldSaveFile){
-            File file = new File(FabricLoader.getInstance().getConfigDir().toString() + "/imbleeding/armor_bleed_prot_values.json");
-            if(!file.exists()){
-                try{
-                    file.getParentFile().mkdirs();
-                    file.createNewFile();
-                } catch (Exception e) {
-                    ImBleeding.LOGGER.error("An error occurred while creating the following file: " + file.getPath(), e);
-                }
+        File file = new File(FabricLoader.getInstance().getConfigDir().toString() + "/imbleeding/armor_bleed_prot_values.json");
+        if(!file.exists()){
+            try{
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (Exception e) {
+                ImBleeding.LOGGER.error("An error occurred while creating the following file: " + file.getPath(), e);
             }
+
             try(FileWriter writer = new FileWriter(file)){
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 writer.write(gson.toJson(ARMOR_BLEED_PROT_MAP));
@@ -56,8 +50,6 @@ public class FileHelper {
             } catch (Exception e) {
                 ImBleeding.LOGGER.error("An error occurred while writing to the following file: " + file.getPath(), e);
             }
-
-            shouldSaveFile = false;
         }
     }
 }
