@@ -1,4 +1,6 @@
 {
+  "info.imbleeding.just.sorting.tags.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "Tags",
+
   "tag.item.imbleeding.tulips": "Tulipany",
   "tag.item.imbleeding.bandages": "Bandaże",
   "tag.item.imbleeding.items_remove_bleeding": "Przedmioty, które leczą Krwawienie",
@@ -44,31 +46,18 @@
   "item.imbleeding.soaked_bandage.effect.turtle_master": "Bandaż Żółwiego Mistrza",
   "item.imbleeding.soaked_bandage.effect.water_breathing": "Bandaż Oddychania pod wodą",
   "item.imbleeding.soaked_bandage.effect.weakness": "Bandaż Słabości",
-
-  "info.imbleeding.just.sorting.config_titles.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "Config titles",
-
-  "text.autoconfig.imbleeding/imbleeding.title": "Konfiguracja Haemorrhage",
-  "text.autoconfig.imbleeding/imbleeding.category.bleeding": "Krwawienie",
-  "text.autoconfig.imbleeding/imbleeding.category.bleeding_length": "Długość Efektów",
-  "text.autoconfig.imbleeding/imbleeding.category.visual": "Efekty Wizualne",
-  "text.autoconfig.imbleeding/imbleeding.category.compatibility": "Kompatybilność",
   "item.imbleeding.soaked_bandage.effect.weaving": "Bandaż Przędzenia",
   "item.imbleeding.soaked_bandage.effect.wind_charged": "Bandaż Napowietrzenia",
   "item.imbleeding.soaked_bandage.effect.oozing": "Bandaż Zaszlamienia",
   "item.imbleeding.soaked_bandage.effect.infested": "Bandaż Zarobaczenia",
+
+  "info.imbleeding.just.sorting.config_titles.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "Config titles",
 
   "text.autoconfig.imbleeding.title": "Konfiguracja Haemorrhage",
   "text.autoconfig.imbleeding.category.bleeding": "Krwawienie",
   "text.autoconfig.imbleeding.category.bleeding_length": "Długość Efektów",
   "text.autoconfig.imbleeding.category.visual": "Efekty Wizualne",
   "text.autoconfig.imbleeding.category.compatibility": "Kompatybilność",
-
-  "text.autoconfig.imbleeding.option.enableBlindnessAtLowHp": "Włącz oślepienie przy niskim zdrowiu",
-  "text.autoconfig.imbleeding.option.enableBlindnessAtLowHp.@Tooltip": "Gracz dostanie oślepienie, gdy jego zdrowie będzie wynosić 1",
-  "text.autoconfig.imbleeding.option.enableDarknessAtLowHp": "Włącz ciemność przy niskim zdrowiu",
-  "text.autoconfig.imbleeding.option.enableDarknessAtLowHp.@Tooltip": "Gracz dostanie ciemność, po otrzymaniu obrażen na niskim zdrowiu",
-  "text.autoconfig.imbleeding.option.enableBloodParticlesClientSided": "Włącz cząsteczki krwi [Po stronie Klienta]",
-  "text.autoconfig.imbleeding.option.enableBloodParticlesClientSided.@Tooltip": "Gracze tworzą cząsteczki krwi kiedy krwawią. Ta opcja jest po stronie klienta (na serwerze nic nie robi)",
 
   "info.imbleeding.just.sorting.config_titles.visual.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "Visual category config options",
 
