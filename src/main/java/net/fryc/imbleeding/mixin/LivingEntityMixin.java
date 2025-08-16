@@ -1,7 +1,6 @@
 package net.fryc.imbleeding.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fryc.imbleeding.ImBleeding;
@@ -9,7 +8,6 @@ import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
-import net.fryc.imbleeding.tags.ModItemTags;
 import net.fryc.imbleeding.util.BleedingHelper;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
@@ -151,6 +149,16 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
     )
     private static DefaultAttributeContainer.Builder addBleedingProtectionToAttributes(DefaultAttributeContainer.Builder original) {
         return original.add(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, 4.0);
+    }
+
+    @Inject(method = "onStatusEffectRemoved(Lnet/minecraft/entity/effect/StatusEffectInstance;)V", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/effect/StatusEffect;onRemoved(Lnet/minecraft/entity/attribute/AttributeContainer;)V"
+    ))
+    private void addSlownessAfterRemovingBroken(StatusEffectInstance effect, CallbackInfo info) {
+        if(effect.getEffectType().equals(ModEffects.BROKEN)){
+            ((LivingEntity) (Object) this).addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 600, 0, false, false, true));
+        }
     }
 
 }
