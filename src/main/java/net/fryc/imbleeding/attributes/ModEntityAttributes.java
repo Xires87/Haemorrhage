@@ -11,7 +11,7 @@ public class ModEntityAttributes {
 
     public static final EntityAttribute GENERIC_BLEEDING_PROTECTION = register(
             "generic.bleeding_protection",
-            (new ClampedEntityAttribute("hammersandtables.attribute.name.generic.bleeding_protection", 4.0, 0.0, 200.0)).setTracked(true)
+            (new ClampedEntityAttribute("imbleeding.attribute.name.generic.bleeding_protection", 4.0, 0.0, 200.0)).setTracked(true)
     );
 
 
