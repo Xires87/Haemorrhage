@@ -9,6 +9,9 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,36 +25,39 @@ import java.util.UUID;
 @Mixin(ArmorItem.class)
 public class ArmorItemMixin {
 
-    @Shadow
-    private static @Final EnumMap<ArmorItem.Type, UUID> MODIFIERS;
-
     @ModifyVariable(method = "<init>", at = @At(
             value = "INVOKE",
             target = "Lcom/google/common/collect/ImmutableMultimap$Builder;build()Lcom/google/common/collect/ImmutableMultimap;"
     ), remap = false)
-    private ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> addBleedingProtection(
-            ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> builder,
-            ArmorMaterial material,
+    private ImmutableMultimap.Builder<RegistryEntry<EntityAttribute>, EntityAttributeModifier> addBleedingProtection(
+            ImmutableMultimap.Builder<RegistryEntry<EntityAttribute>, EntityAttributeModifier> builder,
+            RegistryEntry<ArmorMaterial> material,
             ArmorItem.Type type,
             Item.Settings settings
     ) {
-        Optional<ArmorBleedProt> optional = Optional.ofNullable(FileHelper.ARMOR_BLEED_PROT_MAP.putIfAbsent(material.getName(), new ArmorBleedProt(
-                material.getProtection(ArmorItem.Type.HELMET) * 3 + material.getToughness() * 4,
-                material.getProtection(ArmorItem.Type.CHESTPLATE) * 3 + material.getToughness() * 4,
-                material.getProtection(ArmorItem.Type.LEGGINGS) * 3 + material.getToughness() * 4,
-                material.getProtection(ArmorItem.Type.BOOTS) * 3 + material.getToughness() * 4
+        Identifier id = Registries.ARMOR_MATERIAL.getId(material.value());
+        if(id == null){
+            return builder;
+        }
+
+        Optional<ArmorBleedProt> optional = Optional.ofNullable(FileHelper.ARMOR_BLEED_PROT_MAP.putIfAbsent(id.toString(), new ArmorBleedProt(
+                material.value().getProtection(ArmorItem.Type.HELMET) * 3 + material.value().toughness() * 4,
+                material.value().getProtection(ArmorItem.Type.CHESTPLATE) * 3 + material.value().toughness() * 4,
+                material.value().getProtection(ArmorItem.Type.LEGGINGS) * 3 + material.value().toughness() * 4,
+                material.value().getProtection(ArmorItem.Type.BOOTS) * 3 + material.value().toughness() * 4
         )));
         ArmorBleedProt bleedProt = optional.orElseGet(() -> {
-            return FileHelper.ARMOR_BLEED_PROT_MAP.get(material.getName());
+            return FileHelper.ARMOR_BLEED_PROT_MAP.get(id.toString());
         });
         double value = getBleedProtectionForSlot(bleedProt, type);
 
+        Identifier identifier = Identifier.ofVanilla("armor." + type.getName());
+
         if(value != 0){
             builder.put(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, new EntityAttributeModifier(
-                    MODIFIERS.get(type),
-                    "Armor bleeding resistance",
+                    identifier,
                     value,
-                    EntityAttributeModifier.Operation.ADDITION)
+                    EntityAttributeModifier.Operation.ADD_VALUE)
             );
         }
 
@@ -64,6 +70,7 @@ public class ArmorItemMixin {
             case CHESTPLATE -> bleedProt.chestplate();
             case LEGGINGS -> bleedProt.leggings();
             case BOOTS -> bleedProt.boots();
+            case BODY -> 48;
         };
     }
 }
