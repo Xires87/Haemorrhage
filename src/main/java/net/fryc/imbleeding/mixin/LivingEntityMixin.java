@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
@@ -122,16 +123,18 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
     private void spawnBloodParticles(CallbackInfo info) {
         LivingEntity dys = ((LivingEntity) (Object) this);
         if(!dys.getWorld().isClient()){
-            if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
-                if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
-                    Vec3d vec3d = this.getVelocity();
-                    for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
-                        ServerPlayNetworking.send(pl, new CreateBloodParticlePayload(
-                                dys.getX(),
-                                dys.getY(),
-                                dys.getZ(),
-                                vec3d.getY()-0.05
-                        ));
+            if(ImBleeding.config.enableBloodParticlesServerSided){
+                if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
+                    if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
+                        Vec3d vec3d = this.getVelocity();
+                        for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
+                            ServerPlayNetworking.send(pl, new CreateBloodParticlePayload(
+                                    dys.getX(),
+                                    dys.getY(),
+                                    dys.getZ(),
+                                    vec3d.getY()-0.05
+                            ));
+                        }
                     }
                 }
             }

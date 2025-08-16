@@ -88,6 +88,10 @@ public class ImbleedingConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean enableBloodParticlesClientSided = true;
 
+    @ConfigEntry.Category("visual")
+    @ConfigEntry.Gui.Tooltip
+    public boolean enableBloodParticlesServerSided = true;
+
     @ConfigEntry.Gui.RequiresRestart
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.Category("compatibility")
