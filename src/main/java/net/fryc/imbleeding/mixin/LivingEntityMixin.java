@@ -127,11 +127,14 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
                 if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
                     if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
                         Vec3d vec3d = this.getVelocity();
+                        double x = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
+                        double y = ThreadLocalRandom.current().nextFloat() + 0.1f;
+                        double z = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
                         for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
                             ServerPlayNetworking.send(pl, new CreateBloodParticlePayload(
-                                    dys.getX(),
-                                    dys.getY(),
-                                    dys.getZ(),
+                                    dys.getX() + x,
+                                    dys.getY() + y,
+                                    dys.getZ() + z,
                                     vec3d.getY()-0.05
                             ));
                         }
