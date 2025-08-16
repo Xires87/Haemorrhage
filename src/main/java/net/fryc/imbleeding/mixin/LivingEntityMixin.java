@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.network.ModPackets;
@@ -123,19 +124,21 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
     private void spawnBloodParticles(CallbackInfo info) {
         LivingEntity dys = ((LivingEntity) (Object) this);
         if(!dys.getWorld().isClient()){
-            if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
-                if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
-                    Vec3d vec3d = dys.getVelocity();
-                    PacketByteBuf buf = PacketByteBufs.create();
-                    float x = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
-                    float y = ThreadLocalRandom.current().nextFloat() + 0.1f;
-                    float z = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
-                    buf.writeDouble(dys.getX() + x);
-                    buf.writeDouble(dys.getY() + y);
-                    buf.writeDouble(dys.getZ() + z);
-                    buf.writeDouble(vec3d.getY()-0.05);
-                    for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
-                        ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, buf);
+            if(ImBleeding.config.enableBloodParticlesServerSided){
+                if(dys.hasStatusEffect(ModEffects.BLEED_EFFECT)){
+                    if(ThreadLocalRandom.current().nextInt(100) < 5 + dys.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
+                        Vec3d vec3d = dys.getVelocity();
+                        PacketByteBuf buf = PacketByteBufs.create();
+                        float x = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
+                        float y = ThreadLocalRandom.current().nextFloat() + 0.1f;
+                        float z = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
+                        buf.writeDouble(dys.getX() + x);
+                        buf.writeDouble(dys.getY() + y);
+                        buf.writeDouble(dys.getZ() + z);
+                        buf.writeDouble(vec3d.getY()-0.05);
+                        for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) dys.getWorld()), dys.getChunkPos())) {
+                            ServerPlayNetworking.send(pl, ModPackets.CREATE_BLOOD_PARTICLE, buf);
+                        }
                     }
                 }
             }
