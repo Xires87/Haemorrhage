@@ -24,6 +24,7 @@ Use following tags for:
 * selecting which damage types should apply Health Loss: `imbleeding/data/tags/damage_type/damage_apply_health_loss.json`
 * selecting which mobs apply Health Loss: `imbleeding/data/tags/entity_types/projectiles_causing_bleeding.json`
 * selecting which mobs are immune to Health Loss: `imbleeding/data/tags/entity_types/health_loss_resistant_to.json`
+* selecting which items ignore some part of bleeding protection: `imbleeding/data/tags/items/weapons_pierce_bleeding_protection.json`
 * ~~making items remove~~:
   1. ~~Bleeding: `imbleeding/data/tags/items/items_remove_bleeding.json`~~
   2. ~~Bleedout: `imbleeding/data/tags/items/items_remove_bleedout.json`~~
