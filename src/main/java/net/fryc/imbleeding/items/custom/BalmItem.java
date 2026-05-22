@@ -1,6 +1,7 @@
 package net.fryc.imbleeding.items.custom;
 
 import net.fryc.imbleeding.effects.ModEffects;
+import net.fryc.imbleeding.util.BleedingHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,19 +22,34 @@ public class BalmItem extends Item {
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         user.heal(3.0F);
         if(user.hasStatusEffect(ModEffects.BLEED_EFFECT)){
-            int amp = user.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier();
-            int dur = (int)(user.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getDuration() * 0.8F);
-            if(amp > 0) amp = 0;
-            user.removeStatusEffect(user.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getEffectType());
-            user.addStatusEffect(new StatusEffectInstance(ModEffects.BLEED_EFFECT, dur, amp, false, false, true));
+            BleedingHelper.modifyStatusEffect(
+                    ModEffects.BLEED_EFFECT,
+                    user,
+                    -(int)(user.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getDuration() * 0.2F),
+                    -256,
+                    false
+            );
         }
         if(user.hasStatusEffect(ModEffects.HEALTH_LOSS)){
-            int amp = user.getActiveStatusEffects().get(ModEffects.HEALTH_LOSS).getAmplifier();
-            int dur = (int)(user.getActiveStatusEffects().get(ModEffects.HEALTH_LOSS).getDuration() * 0.5F);
-            if(amp > 0) amp = 0;
-            user.removeStatusEffect(user.getActiveStatusEffects().get(ModEffects.HEALTH_LOSS).getEffectType());
-            user.addStatusEffect(new StatusEffectInstance(ModEffects.HEALTH_LOSS, dur, amp, false, false, true));
+            BleedingHelper.modifyStatusEffect(
+                    ModEffects.HEALTH_LOSS,
+                    user,
+                    -(int)(user.getActiveStatusEffects().get(ModEffects.HEALTH_LOSS).getDuration() * 0.5F),
+                    -256,
+                    false
+            );
         }
+        /* TODO odkomentowac jak zaimplementuje scorcha
+        if(user.hasStatusEffect(ModEffects.SCORCHED)) {
+            BleedingHelper.modifyStatusEffect(
+                    ModEffects.SCORCHED,
+                    user,
+                    -(int)(user.getActiveStatusEffects().get(ModEffects.SCORCHED).getDuration() * 0.05F),
+                    -1,
+                    false
+            );
+        }
+         */
         ItemStack itemStack = super.finishUsing(stack, world, user);
         return user instanceof PlayerEntity && ((PlayerEntity)user).getAbilities().creativeMode ? itemStack : new ItemStack(Items.BOWL);
     }

@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -59,32 +60,6 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
             info.cancel();
         }
     }
-
-    /* It is done via unremovable effects now
-    @Inject(method = "consumeItem()V", at = @At(value = "INVOKE", target =
-            "Lnet/minecraft/entity/LivingEntity;spawnConsumptionEffects(Lnet/minecraft/item/ItemStack;I)V", shift = At.Shift.AFTER))
-    private void removeEffectsAfterUsingItem(CallbackInfo info) {
-        LivingEntity dys = ((LivingEntity)(Object)this);
-        if(!dys.getWorld().isClient()){
-            if(dys.getActiveItem().isIn(ModItemTags.ITEMS_REMOVE_BLEEDING)){
-                dys.removeStatusEffect(ModEffects.BLEED_EFFECT);
-            }
-            if(dys.getActiveItem().isIn(ModItemTags.ITEMS_REMOVE_HEALTH_LOSS)){
-                dys.removeStatusEffect(ModEffects.HEALTH_LOSS);
-            }
-            if(dys.getActiveItem().isIn(ModItemTags.ITEMS_REMOVE_BROKEN)){
-                if(dys.hasStatusEffect(ModEffects.BROKEN)){
-                    int duration = dys.getActiveStatusEffects().get(ModEffects.BROKEN).getDuration();
-                    dys.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, duration, 0, false, false, true));
-                    dys.removeStatusEffect(ModEffects.BROKEN);
-                }
-            }
-            if(dys.getActiveItem().isIn(ModItemTags.ITEMS_REMOVE_BLEEDOUT)){
-                dys.removeStatusEffect(ModEffects.BLEEDOUT);
-            }
-        }
-    }
-     */
 
 
     @Inject(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", at = @At("TAIL"))
@@ -159,6 +134,13 @@ abstract class LivingEntityMixin extends Entity implements Attackable {
         if(effect.getEffectType().equals(ModEffects.BROKEN)){
             ((LivingEntity) (Object) this).addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 600, 0, false, false, true));
         }
+    }
+
+
+    @ModifyVariable(method = "heal(F)V", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    private float modifyHealAmountWhenScorched(float amount) {
+        LivingEntity dys = ((LivingEntity) (Object) this);
+        return BleedingHelper.modifyHealAmount(dys, amount);
     }
 
 }

@@ -245,4 +245,11 @@ public class BleedingHelper {
     }
 
 
+    public static float modifyHealAmount(LivingEntity entity, float amount) {
+        //if(entity.hasStatusEffect(ModEffects.SCORCHED)) {
+        //
+        //}
+
+        return amount;
+    }
 }
