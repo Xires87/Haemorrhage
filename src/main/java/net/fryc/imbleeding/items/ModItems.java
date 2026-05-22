@@ -2,10 +2,7 @@ package net.fryc.imbleeding.items;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fryc.imbleeding.ImBleeding;
-import net.fryc.imbleeding.items.custom.BalmItem;
-import net.fryc.imbleeding.items.custom.BandageItem;
-import net.fryc.imbleeding.items.custom.SoakedBandageItem;
-import net.fryc.imbleeding.items.custom.SplintItem;
+import net.fryc.imbleeding.items.custom.*;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -37,6 +34,9 @@ public class ModItems {
     public static final Item SOAKED_BANDAGE = registerItem("soaked_bandage" ,
             new SoakedBandageItem(new Item.Settings().maxCount(16)));
 
+    public static final Item LEATHER_STRIPS = registerItem("leather_strips" ,
+            new LeatherStripsItem(new Item.Settings().maxCount(16)));
+
     private static Item registerItem(String name, Item item){
         return Registry.register(Registries.ITEM, Identifier.of(ImBleeding.MOD_ID, name), item);
     }
@@ -51,6 +51,7 @@ public class ModItems {
                     entries.add(ModItems.STICKY_BANDAGE);
                     entries.add(ModItems.HERBAL_BALM);
                     entries.add(ModItems.SPLINT);
+                    entries.add(ModItems.LEATHER_STRIPS);
                     enabledFeatures.lookup().getOptionalWrapper(RegistryKeys.POTION).ifPresent((wrapper) -> {
                         addPotions(entries, wrapper, ModItems.SOAKED_BANDAGE, ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS, enabledFeatures.enabledFeatures());
                     });

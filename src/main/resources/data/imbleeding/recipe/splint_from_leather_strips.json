@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    "X#X",
+    " # "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:stick"
+    },
+    "#": {
+      "item": "imbleeding:leather_strips"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "imbleeding:splint"
+  }
+}

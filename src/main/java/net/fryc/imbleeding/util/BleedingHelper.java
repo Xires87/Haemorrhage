@@ -129,6 +129,7 @@ public class BleedingHelper {
     }
 
     public static void reduceBleedingWithFire(LivingEntity entity){
+        // TODO zmiany ze scorchem
         if(entity.hasStatusEffect(ModEffects.BLEED_EFFECT)){
             int amp = entity.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier();
             int dur = entity.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getDuration();
@@ -144,6 +145,38 @@ public class BleedingHelper {
             if(dur > 0){
                 entity.addStatusEffect(new StatusEffectInstance(ModEffects.BLEED_EFFECT, dur, amp, false, false, true));
             }
+        }
+    }
+
+    public static void modifyStatusEffect(RegistryEntry<StatusEffect> effect, LivingEntity entity, int durAdd, int ampAdd, boolean shouldRemove) {
+        if(entity.hasStatusEffect(effect)){
+            StatusEffectInstance instance = entity.getActiveStatusEffects().get(effect);
+
+            int dur = instance.getDuration() + durAdd;
+            int amp;
+            if(dur > 0 || instance.isInfinite()) {
+                amp = instance.getAmplifier() + ampAdd;
+            }
+            else {
+                amp = -1;
+                shouldRemove = true;
+            }
+
+            if(amp < 0) {
+                if(shouldRemove) {
+                    entity.removeStatusEffect(instance.getEffectType());
+                    return;
+                }
+
+                amp = 0;
+            }
+
+            boolean ambient = instance.isAmbient();
+            boolean showParticles = instance.shouldShowParticles();
+            boolean showIcon = instance.shouldShowIcon();
+
+            entity.removeStatusEffect(instance.getEffectType());
+            entity.addStatusEffect(new StatusEffectInstance(effect, instance.isInfinite() ? -1 : dur, amp, ambient, showParticles, showIcon));
         }
     }
 
