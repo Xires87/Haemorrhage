@@ -1,13 +1,12 @@
 {
   "values": [
+    "#imbleeding:mobs_causing_health_loss",
     "minecraft:guardian",
     "minecraft:elder_guardian",
     "minecraft:pufferfish",
     "minecraft:silverfish",
     "minecraft:slime",
     "minecraft:magma_cube",
-    "minecraft:bee",
-    "minecraft:spider",
-    "minecraft:cave_spider"
+    "minecraft:bee"
   ]
 }
