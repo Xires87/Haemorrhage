@@ -1,7 +1,13 @@
 {
   "items": [
     "imbleeding:herbal_balm",
-    "imbleeding:honey_bandage"
+    "imbleeding:honey_bandage",
+    {
+      "id": "minecraft:honey_bottle",
+      "supported_actions": [
+        "imbleeding:wound_disinfect"
+      ]
+    }
   ],
   "status_effects": [
     "minecraft:poison"

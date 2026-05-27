@@ -4,6 +4,7 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fryc.imbleeding.actions.ImBleedingActions;
 import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.config.ImbleedingConfig;
 import net.fryc.imbleeding.effects.ModEffects;
@@ -33,6 +34,8 @@ public class ImBleeding implements ModInitializer {
 		ModParticles.registerModParticles();
 
 		ModPackets.registerPayloads();
+
+		ImBleedingActions.registerImBleedingActions();
 
 		// I want to make sure all mods are loaded before I save the file (couldn't find better way)
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
