@@ -98,4 +98,15 @@ public class ImbleedingConfig implements ConfigData {
     @ConfigEntry.Category("compatibility")
     public boolean enableCombatRollCompatibility = true;
 
+    // wound infection
+    @ConfigEntry.Category("infection")
+    public float baseInfectionFactor = 0.1F;
+
+    @ConfigEntry.Category("infection")
+    public float hungerFromInfectionChance = 0.07F;
+
+    @ConfigEntry.Category("infection")
+    public float poisonFromInfectionChance = 0.01F;
+
+
 }
