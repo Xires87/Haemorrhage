@@ -41,6 +41,7 @@ public class ImBleeding implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			FileHelper.createReadme();
 			FileHelper.saveArmorBleedProtMap();
+			FileHelper.saveStatusEffectModifiersMap();
 		});
 
 	}
