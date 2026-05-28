@@ -39,6 +39,7 @@ public class ImBleeding implements ModInitializer {
 
 		// I want to make sure all mods are loaded before I save the file (couldn't find better way)
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			FileHelper.createReadme();
 			FileHelper.saveArmorBleedProtMap();
 		});
 
