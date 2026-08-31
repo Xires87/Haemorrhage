@@ -23,12 +23,14 @@ public class ModEffects {
 
     public static RegistryEntry<StatusEffect> BROKEN;
     public static RegistryEntry<StatusEffect> WOUND_INFECTION;
+    public static RegistryEntry<StatusEffect> SCORCHED;
 
     private static final String BLEED_ID = "bleed";
     private static final String BLEEDOUT_ID = "bleedout";
     private static final String HEALTH_LOSS_ID = "health_loss";
     private static final String BROKEN_ID = "broken";
     private static final String WOUND_INFECTION_ID = "wound_infection";
+    private static final String SCORCHED_ID = "scorched";
 
 
     private static RegistryEntry<StatusEffect> registerStatusEffect(String id, StatusEffect statusEffect) {
@@ -44,6 +46,7 @@ public class ModEffects {
             HEALTH_LOSS = registerStatusEffect(HEALTH_LOSS_ID, new HealthLossEffect(StatusEffectCategory.HARMFUL, 16262179).addAttributeModifier(EntityAttributes.GENERIC_MAX_HEALTH, Identifier.of(ImBleeding.MOD_ID, "effect.health_loss"), -2.0, EntityAttributeModifier.Operation.ADD_VALUE));
             BROKEN = registerStatusEffect(BROKEN_ID, new BrokenEffect(StatusEffectCategory.HARMFUL, 9154528).addAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED, Identifier.of(ImBleeding.MOD_ID, "effect.broken"), -0.15, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             WOUND_INFECTION = registerStatusEffect(WOUND_INFECTION_ID, new WoundInfectionEffect(StatusEffectCategory.HARMFUL, 7889189).addAttributeModifier(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, Identifier.of(ImBleeding.MOD_ID, "effect.wound_infection"), -60, EntityAttributeModifier.Operation.ADD_VALUE));
+            SCORCHED = registerStatusEffect(SCORCHED_ID, new ScorchedEffect(StatusEffectCategory.HARMFUL, 7889189));
         }
     }
 
@@ -67,7 +70,7 @@ public class ModEffects {
 
     private static List<StatusEffectAttributeModifier> getDefaultModifiers(String id) {
         return switch (id) {
-            case BLEED_ID -> List.of();
+            case BLEED_ID, SCORCHED_ID -> List.of();
             case BLEEDOUT_ID -> List.of(new StatusEffectAttributeModifier(EntityAttributes.GENERIC_MAX_HEALTH.getIdAsString(), "effect.bleedout", -0.6, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL.asString()));
             case HEALTH_LOSS_ID -> List.of(new StatusEffectAttributeModifier(EntityAttributes.GENERIC_MAX_HEALTH.getIdAsString(), "effect.health_loss", -2.0, EntityAttributeModifier.Operation.ADD_VALUE.asString()));
             case BROKEN_ID -> List.of(new StatusEffectAttributeModifier(EntityAttributes.GENERIC_MOVEMENT_SPEED.getIdAsString(), "effect.broken", -0.15, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL.asString()));

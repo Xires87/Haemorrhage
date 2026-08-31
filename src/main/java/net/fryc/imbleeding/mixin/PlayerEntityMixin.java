@@ -38,8 +38,9 @@ abstract class PlayerEntityMixin extends LivingEntity {
             }
         }
 
-        if(BleedingHelper.shouldReduceBleedingWithFire(source, this.getWorld())){
-            BleedingHelper.reduceBleedingWithFire(this);
+        if(BleedingHelper.shouldIncreaseScorchedFactor(source, this.getWorld())){
+            BleedingHelper.increaseScorchedFactor(this, amount, 0.38F);
+            BleedingHelper.extendScorchedDuration(this, amount);
         }
 
         if(BleedingHelper.shouldApplyBrokenEffect(source, amount, this)){
