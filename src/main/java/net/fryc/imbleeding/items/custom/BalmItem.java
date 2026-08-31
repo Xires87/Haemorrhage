@@ -21,6 +21,7 @@ public class BalmItem extends Item {
 
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         user.heal(3.0F);
+        /*
         if(user.hasStatusEffect(ModEffects.BLEED_EFFECT)){
             BleedingHelper.modifyStatusEffect(
                     ModEffects.BLEED_EFFECT,
@@ -30,6 +31,7 @@ public class BalmItem extends Item {
                     false
             );
         }
+         */
         if(user.hasStatusEffect(ModEffects.HEALTH_LOSS)){
             BleedingHelper.modifyStatusEffect(
                     ModEffects.HEALTH_LOSS,
