@@ -228,7 +228,7 @@ public class BleedingHelper {
     }
 
     public static boolean shouldStopFoodHealing(Player player){
-        return player.hasEffect(ModEffects.BLEED_EFFECT);
+        return ImBleeding.config.bleedingStopsFoodHealing && player.hasEffect(ModEffects.BLEED_EFFECT);
     }
 
     public static void applyBrokenEffect(LivingEntity entity, float damage){

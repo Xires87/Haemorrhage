@@ -1,6 +1,5 @@
 package net.fryc.imbleeding.mixin;
 
-import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.util.BleedingHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -11,7 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 abstract class PlayerEntityMixin extends LivingEntity {
@@ -48,17 +46,6 @@ abstract class PlayerEntityMixin extends LivingEntity {
         }
 
     }
-
-    //TODO
-    //Stops food healing while bleeding
-    @Inject(method = "canFoodHeal()Z", at = @At("RETURN"), cancellable = true)
-    public void noHealing(CallbackInfoReturnable<Boolean> ret) {
-        Player player = ((Player) (Object) this);
-        if(ImBleeding.config.bleedingStopsFoodHealing && BleedingHelper.shouldStopFoodHealing(player)){
-            ret.setReturnValue(false);
-        }
-    }
-
 
 
     //Gives blindness if player has 1 hp or lower

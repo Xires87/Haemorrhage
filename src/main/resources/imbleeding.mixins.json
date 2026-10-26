@@ -9,6 +9,7 @@
     "HoneyBottleMixin",
     "ServerWorldMixin",
     "ArmorItemMixin",
+    "FoodDataMixin",
     "compatibility/CombatRollCompatibilityMixin"
   ],
   "client": [

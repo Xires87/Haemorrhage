@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerLevel.class)
 abstract class ServerWorldMixin {
 
-    //TODO
-    @Inject(method = "onPlayerConnected(Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("TAIL"))
+    @Inject(method = "addNewPlayer(Lnet/minecraft/server/level/ServerPlayer;)V", at = @At("TAIL"))
     private void sendConfigToClient(ServerPlayer player, CallbackInfo info) {
         ServerPlayNetworking.send(player, new SynchronizeConfigPayload(ImBleeding.config.enableCombatRollCompatibility));
     }

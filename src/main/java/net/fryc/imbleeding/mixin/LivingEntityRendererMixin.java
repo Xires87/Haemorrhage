@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntityRenderer.class)
 abstract class LivingEntityRendererMixin {
 
-    @Inject(method = "isShaking(Lnet/minecraft/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isShaking(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
     private void shakeWhenBleedingOut(LivingEntity entity, CallbackInfoReturnable<Boolean> ret) {
         if(entity.hasEffect(ModEffects.BLEEDOUT)) ret.setReturnValue(true);
     }
