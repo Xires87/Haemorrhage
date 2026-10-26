@@ -2,27 +2,27 @@ package net.fryc.imbleeding.effects;
 
 import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.damage.ModDamageTypes;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 
-public class BleedoutEffect extends StatusEffect {
+public class BleedoutEffect extends MobEffect {
 
-    protected BleedoutEffect(StatusEffectCategory statusEffectCategory, int color) {
+    protected BleedoutEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
     @Override
-    public boolean applyUpdateEffect(LivingEntity pLivingEntity, int pAmplifier) {
-        if (!pLivingEntity.getWorld().isClient() && ImBleeding.config.bleedoutKills) {
-            if(pLivingEntity.hasStatusEffect(ModEffects.BLEED_EFFECT) && pLivingEntity.getActiveStatusEffects().get(ModEffects.BLEEDOUT).getDuration() > ImBleeding.config.bleedoutLength + ImBleeding.config.bleedoutLength/2) pLivingEntity.damage(ModDamageTypes.of(pLivingEntity.getWorld(), ModDamageTypes.BLEEDING_DAMAGE), 200F);
+    public boolean applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {
+        if (!pLivingEntity.level().isClientSide() && ImBleeding.config.bleedoutKills) {
+            if(pLivingEntity.hasEffect(ModEffects.BLEED_EFFECT) && pLivingEntity.getActiveEffectsMap().get(ModEffects.BLEEDOUT).getDuration() > ImBleeding.config.bleedoutLength + ImBleeding.config.bleedoutLength/2) pLivingEntity.hurt(ModDamageTypes.of(pLivingEntity.level(), ModDamageTypes.BLEEDING_DAMAGE), 200F);
         }
 
-        return super.applyUpdateEffect(pLivingEntity, pAmplifier);
+        return super.applyEffectTick(pLivingEntity, pAmplifier);
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int pDuration, int pAmplifier) {
+    public boolean shouldApplyEffectTickThisTick(int pDuration, int pAmplifier) {
         int i;
         if (this == ModEffects.BLEEDOUT.value()) {
             i = 60 >> pAmplifier;
@@ -35,8 +35,8 @@ public class BleedoutEffect extends StatusEffect {
         else return true;
     }
 
-    public void onApplied(LivingEntity entity, int amplifier) {
-        super.onApplied(entity, amplifier);
+    public void onEffectStarted(LivingEntity entity, int amplifier) {
+        super.onEffectStarted(entity, amplifier);
         if (entity.getHealth() > entity.getMaxHealth()) {
             entity.setHealth(entity.getMaxHealth());
         }

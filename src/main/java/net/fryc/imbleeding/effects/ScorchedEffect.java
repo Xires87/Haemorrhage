@@ -1,17 +1,17 @@
 package net.fryc.imbleeding.effects;
 
 import net.fryc.imbleeding.util.BleedingHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 
-public class ScorchedEffect extends StatusEffect {
+public class ScorchedEffect extends MobEffect {
 
-    protected ScorchedEffect(StatusEffectCategory statusEffectCategory, int color) {
+    protected ScorchedEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
-    public void onApplied(LivingEntity entity, int amplifier) {
+    public void onEffectStarted(LivingEntity entity, int amplifier) {
         BleedingHelper.modifyStatusEffect(ModEffects.BLEED_EFFECT, entity, getBleedingDurationReduction(amplifier), amplifier * -1, false);
     }
 

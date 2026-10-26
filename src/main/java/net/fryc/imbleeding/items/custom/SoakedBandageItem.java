@@ -1,20 +1,19 @@
 package net.fryc.imbleeding.items.custom;
 
 import com.google.common.collect.Sets;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
-
 import java.util.HashSet;
 import java.util.List;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.Level;
 
 public class SoakedBandageItem extends BandageItem {
 
@@ -65,45 +64,45 @@ public class SoakedBandageItem extends BandageItem {
             Potions.WEAVING.value()
     );
 
-    public SoakedBandageItem(Settings settings) {
+    public SoakedBandageItem(Properties settings) {
         super(settings);
     }
 
-    public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        if (!world.isClient) {
-            PotionContentsComponent potionContentsComponent = (PotionContentsComponent)stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+        if (!world.isClientSide) {
+            PotionContents potionContentsComponent = (PotionContents)stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
             potionContentsComponent.forEachEffect((effect) -> {
-                if (((StatusEffect)effect.getEffectType().value()).isInstant()) {
-                    ((StatusEffect)effect.getEffectType().value()).applyInstantEffect(user, user, user, effect.getAmplifier(), 1.0);
+                if (((MobEffect)effect.getEffect().value()).isInstantenous()) {
+                    ((MobEffect)effect.getEffect().value()).applyInstantenousEffect(user, user, user, effect.getAmplifier(), 1.0);
                 } else {
-                    user.addStatusEffect(new StatusEffectInstance(effect.getEffectType(), (int)(effect.getDuration()*SOAKED_BANDAGE_DURATION_MULTIPLIER), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+                    user.addEffect(new MobEffectInstance(effect.getEffect(), (int)(effect.getDuration()*SOAKED_BANDAGE_DURATION_MULTIPLIER), effect.getAmplifier(), effect.isAmbient(), effect.isVisible(), effect.showIcon()));
                 }
 
             });
         }
-        return super.finishUsing(stack, world, user);
+        return super.finishUsingItem(stack, world, user);
     }
 
-    public ItemStack getDefaultStack() {
-        return PotionContentsComponent.createStack(this, Potions.HEALING);
+    public ItemStack getDefaultInstance() {
+        return PotionContents.createItemStack(this, Potions.HEALING);
     }
 
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        PotionContentsComponent potionContentsComponent = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
+        PotionContents potionContentsComponent = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
         if(potionContentsComponent.potion().isPresent()){
             if(potionContentsComponent.potion().get() != Potions.WATER){
-                potionContentsComponent.buildTooltip(tooltip::add, SOAKED_BANDAGE_DURATION_MULTIPLIER, context.getUpdateTickRate());
+                potionContentsComponent.addPotionTooltip(tooltip::add, SOAKED_BANDAGE_DURATION_MULTIPLIER, context.tickRate());
             }
         }
     }
 
-    public String getTranslationKey(ItemStack stack) {
-        PotionContentsComponent potionContentsComponent = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+    public String getDescriptionId(ItemStack stack) {
+        PotionContents potionContentsComponent = stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
         if(potionContentsComponent.potion().isPresent()){
             potionContentsComponent.potion().get().value();
-            return SPECIAL_TRANSLATION_POTIONS.contains(potionContentsComponent.potion().get().value()) ? Potion.finishTranslationKey(potionContentsComponent.potion(), this.getTranslationKey() + ".effect.") : this.getTranslationKey();
+            return SPECIAL_TRANSLATION_POTIONS.contains(potionContentsComponent.potion().get().value()) ? Potion.getName(potionContentsComponent.potion(), this.getDescriptionId() + ".effect.") : this.getDescriptionId();
         }
-        return this.getTranslationKey();
+        return this.getDescriptionId();
     }
 
 }

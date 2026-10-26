@@ -6,18 +6,19 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fryc.imbleeding.attributes.ArmorBleedProt;
 import net.fryc.imbleeding.attributes.ModEntityAttributes;
 import net.fryc.imbleeding.util.FileHelper;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -28,33 +29,34 @@ public class ArmorItemMixin {
     @Shadow
     protected @Final ArmorItem.Type type;
     @Shadow
-    protected @Final RegistryEntry<ArmorMaterial> material;
+    protected @Final Holder<ArmorMaterial> material;
 
-    private Supplier<AttributeModifiersComponent> attributeModifiersComponentSupplier;
+    @Unique
+    private Supplier<ItemAttributeModifiers> attributeModifiersComponentSupplier;
 
 
-    @Inject(method = "<init>(Lnet/minecraft/registry/entry/RegistryEntry;Lnet/minecraft/item/ArmorItem$Type;Lnet/minecraft/item/Item$Settings;)V", at = @At(value = "TAIL"))
-    private void saveBleedingProtectionToMap(RegistryEntry<ArmorMaterial> material, ArmorItem.Type type, Item.Settings settings, CallbackInfo info) {
-        Identifier id = Registries.ARMOR_MATERIAL.getId(material.value());
+    @Inject(method = "<init>(Lnet/minecraft/core/Holder;Lnet/minecraft/world/item/ArmorItem$Type;Lnet/minecraft/world/item/Item$Properties;)V", at = @At(value = "TAIL"))
+    private void saveBleedingProtectionToMap(Holder<ArmorMaterial> material, ArmorItem.Type type, Item.Properties settings, CallbackInfo info) {
+        ResourceLocation id = BuiltInRegistries.ARMOR_MATERIAL.getKey(material.value());
         if(id != null){
             FileHelper.ARMOR_BLEED_PROT_MAP.putIfAbsent(id.toString(), new ArmorBleedProt(
-                    material.value().getProtection(ArmorItem.Type.HELMET) * 3 + material.value().toughness() * 4,
-                    material.value().getProtection(ArmorItem.Type.CHESTPLATE) * 3 + material.value().toughness() * 4,
-                    material.value().getProtection(ArmorItem.Type.LEGGINGS) * 3 + material.value().toughness() * 4,
-                    material.value().getProtection(ArmorItem.Type.BOOTS) * 3 + material.value().toughness() * 4
+                    material.value().getDefense(ArmorItem.Type.HELMET) * 3 + material.value().toughness() * 4,
+                    material.value().getDefense(ArmorItem.Type.CHESTPLATE) * 3 + material.value().toughness() * 4,
+                    material.value().getDefense(ArmorItem.Type.LEGGINGS) * 3 + material.value().toughness() * 4,
+                    material.value().getDefense(ArmorItem.Type.BOOTS) * 3 + material.value().toughness() * 4
             ));
         }
     }
 
 
     @ModifyReturnValue(
-            method = "getAttributeModifiers()Lnet/minecraft/component/type/AttributeModifiersComponent;",
+            method = "getDefaultAttributeModifiers()Lnet/minecraft/world/item/component/ItemAttributeModifiers;",
             at = @At("RETURN")
     )
-    private AttributeModifiersComponent addBleedingProtection(AttributeModifiersComponent original) {
+    private ItemAttributeModifiers addBleedingProtection(ItemAttributeModifiers original) {
         if(this.attributeModifiersComponentSupplier == null){
             this.attributeModifiersComponentSupplier = Suppliers.memoize(() -> {
-                Identifier id = Registries.ARMOR_MATERIAL.getId(this.material.value());
+                ResourceLocation id = BuiltInRegistries.ARMOR_MATERIAL.getKey(this.material.value());
                 if(id != null){
                     ArmorBleedProt prot = FileHelper.ARMOR_BLEED_PROT_MAP.get(id.toString());
 
@@ -62,13 +64,13 @@ public class ArmorItemMixin {
                         double value = getBleedProtectionForSlot(prot, this.type);
 
                         if(value != 0){
-                            Identifier identifier = Identifier.ofVanilla("armor." + type.getName());
+                            ResourceLocation identifier = ResourceLocation.withDefaultNamespace("armor." + type.getName());
 
-                            return original.with(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, new EntityAttributeModifier(
+                            return original.withModifierAdded(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, new AttributeModifier(
                                     identifier,
                                     value,
-                                    EntityAttributeModifier.Operation.ADD_VALUE
-                            ), AttributeModifierSlot.forEquipmentSlot(this.type.getEquipmentSlot()));
+                                    AttributeModifier.Operation.ADD_VALUE
+                            ), EquipmentSlotGroup.bySlot(this.type.getSlot()));
                         }
                     }
                 }
@@ -81,6 +83,7 @@ public class ArmorItemMixin {
         return this.attributeModifiersComponentSupplier.get();
     }
 
+    @Unique
     private static double getBleedProtectionForSlot(ArmorBleedProt bleedProt, ArmorItem.Type type){
         return switch (type) {
             case HELMET -> bleedProt.helmet();

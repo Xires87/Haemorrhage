@@ -10,19 +10,19 @@ import net.fryc.imbleeding.tags.ModDamageTypeTags;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.fryc.imbleeding.tags.ModItemTags;
 import net.fryc.imbleeding.util.mixin_interfaces.CanBleed;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -30,26 +30,26 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BleedingHelper {
 
     public static boolean shouldApplyDarkness(LivingEntity entity) {
-        return entity instanceof PlayerEntity;
+        return entity instanceof Player;
     }
 
     public static void applyDarkness(LivingEntity entity){
         if(entity.getHealth() < 6 && ImBleeding.config.enableDarknessAtLowHp){
-            if(entity.hasStatusEffect(StatusEffects.DARKNESS)){
-                if(entity.getActiveStatusEffects().get(StatusEffects.DARKNESS).getDuration() < 34){
-                    entity.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 33 , 0, false, false, false));
+            if(entity.hasEffect(MobEffects.DARKNESS)){
+                if(entity.getActiveEffectsMap().get(MobEffects.DARKNESS).getDuration() < 34){
+                    entity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 33 , 0, false, false, false));
                 }
             }
-            else entity.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 33 , 0, false, false, false));
+            else entity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 33 , 0, false, false, false));
         }
     }
 
     public static void applyBlindness(LivingEntity entity){
         if(entity.getHealth()<=1 && ImBleeding.config.enableBlindnessAtLowHp){
-            if(entity.hasStatusEffect(StatusEffects.BLINDNESS)){
-                if(entity.getActiveStatusEffects().get(StatusEffects.BLINDNESS).getDuration() < 25) entity.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 60 , 0, false, false, false));
+            if(entity.hasEffect(MobEffects.BLINDNESS)){
+                if(entity.getActiveEffectsMap().get(MobEffects.BLINDNESS).getDuration() < 25) entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60 , 0, false, false, false));
             }
-            else entity.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 60 , 0, false, false, false));
+            else entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60 , 0, false, false, false));
         }
     }
 
@@ -64,15 +64,15 @@ public class BleedingHelper {
     public static void applyBleedingOrHealthLoss(LivingEntity entity, DamageSource source, float amount, boolean healthLoss){
         int duration;
         double reduction = entity.getAttributeValue(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION)/100;
-        boolean melee = !source.isIn(DamageTypeTags.IS_PROJECTILE);
+        boolean melee = !source.is(DamageTypeTags.IS_PROJECTILE);
         boolean meleeWithTool = false;
 
-        if(melee && source.getAttacker() != null && source.getAttacker() instanceof LivingEntity livingEntity){
-            if(livingEntity.getMainHandStack().isIn(ModItemTags.WEAPONS_PIERCE_BLEEDING_PROTECTION)){
+        if(melee && source.getEntity() != null && source.getEntity() instanceof LivingEntity livingEntity){
+            if(livingEntity.getMainHandItem().is(ModItemTags.WEAPONS_PIERCE_BLEEDING_PROTECTION)){
                 reduction -= ImBleeding.config.sharpWeaponBleedProtPiercing;
                 meleeWithTool = true;
             }
-            else if(livingEntity.getMainHandStack().isDamageable()){
+            else if(livingEntity.getMainHandItem().isDamageableItem()){
                 meleeWithTool = true;
             }
         }
@@ -96,22 +96,22 @@ public class BleedingHelper {
             duration -= (int) (duration * reduction);
 
             if(duration > 19){
-                RegistryEntry<StatusEffect> effect = healthLoss ? ModEffects.HEALTH_LOSS : ModEffects.BLEED_EFFECT;
+                Holder<MobEffect> effect = healthLoss ? ModEffects.HEALTH_LOSS : ModEffects.BLEED_EFFECT;
                 BleedingHelper.applyOrExtendEffect(entity, duration, effect, source, amount);
             }
         }
     }
 
-    public static void applyOrExtendEffect(LivingEntity entity, int duration, RegistryEntry<StatusEffect> effect) {
+    public static void applyOrExtendEffect(LivingEntity entity, int duration, Holder<MobEffect> effect) {
         applyOrExtendEffect(entity, duration, effect, null, 0);
     }
 
-    public static void applyOrExtendEffect(LivingEntity entity, int duration, RegistryEntry<StatusEffect> effect, @Nullable DamageSource source, float amount){
-        if(!entity.hasStatusEffect(effect)){
-            entity.addStatusEffect(new StatusEffectInstance(effect, duration, 0, false, false, true));
+    public static void applyOrExtendEffect(LivingEntity entity, int duration, Holder<MobEffect> effect, @Nullable DamageSource source, float amount){
+        if(!entity.hasEffect(effect)){
+            entity.addEffect(new MobEffectInstance(effect, duration, 0, false, false, true));
         }
         else{
-            int amp = entity.getActiveStatusEffects().get(effect).getAmplifier();
+            int amp = entity.getActiveEffectsMap().get(effect).getAmplifier();
             if(source != null && amount > 0) {
                 int bleedingUpgradeChance;
                 if(amp == 0){
@@ -127,38 +127,38 @@ public class BleedingHelper {
                 }
             }
 
-            if(entity.getActiveStatusEffects().get(effect).getDuration() > duration){
+            if(entity.getActiveEffectsMap().get(effect).getDuration() > duration){
                 duration -= (int) (duration * 0.75);
             }
             else{
-                duration -= (int) (entity.getActiveStatusEffects().get(effect).getDuration() * 0.75);
+                duration -= (int) (entity.getActiveEffectsMap().get(effect).getDuration() * 0.75);
             }
-            duration += entity.getActiveStatusEffects().get(effect).getDuration();
+            duration += entity.getActiveEffectsMap().get(effect).getDuration();
 
-            entity.addStatusEffect(new StatusEffectInstance(effect, duration, amp, false, false, true));
+            entity.addEffect(new MobEffectInstance(effect, duration, amp, false, false, true));
         }
     }
 
     private static boolean checkIfBleedingCanBeUpgraded(DamageSource source){
-        if(source.isIn(DamageTypeTags.IS_PROJECTILE)) return ImBleeding.config.enableArrowEffectUpgrading;
+        if(source.is(DamageTypeTags.IS_PROJECTILE)) return ImBleeding.config.enableArrowEffectUpgrading;
         return ImBleeding.config.enableMeleeEffectUpgrading;
     }
 
     public static void increaseScorchedFactor(LivingEntity entity, float damageTaken, float modifier){
         // TODO zmiany ze scorchem
         if(damageTaken > 0) {
-            if(entity.hasStatusEffect(ModEffects.SCORCHED)) {
-                modifier -= 0.06F * (entity.getStatusEffect(ModEffects.SCORCHED).getAmplifier() + 1);
+            if(entity.hasEffect(ModEffects.SCORCHED)) {
+                modifier -= 0.06F * (entity.getEffect(ModEffects.SCORCHED).getAmplifier() + 1);
             }
 
-            if(entity.isWet()) {
+            if(entity.isInWaterRainOrBubble()) {
                 modifier *= 0.33F;
             }
             else if(entity.isInLava()) {
                 modifier *= 1.8F;
             }
 
-            if(entity.getWorld().getDimension().ultrawarm()) {
+            if(entity.level().dimensionType().ultraWarm()) {
                 modifier *= 1.2F;
             }
 
@@ -187,13 +187,13 @@ public class BleedingHelper {
          */
     }
 
-    public static void modifyStatusEffect(RegistryEntry<StatusEffect> effect, LivingEntity entity, int durAdd, int ampAdd, boolean shouldRemove) {
-        if(entity.hasStatusEffect(effect)){
-            StatusEffectInstance instance = entity.getActiveStatusEffects().get(effect);
+    public static void modifyStatusEffect(Holder<MobEffect> effect, LivingEntity entity, int durAdd, int ampAdd, boolean shouldRemove) {
+        if(entity.hasEffect(effect)){
+            MobEffectInstance instance = entity.getActiveEffectsMap().get(effect);
 
             int dur = instance.getDuration() + durAdd;
             int amp;
-            if(dur > 0 || instance.isInfinite()) {
+            if(dur > 0 || instance.isInfiniteDuration()) {
                 amp = instance.getAmplifier() + ampAdd;
             }
             else {
@@ -203,7 +203,7 @@ public class BleedingHelper {
 
             if(amp < 0) {
                 if(shouldRemove) {
-                    entity.removeStatusEffect(instance.getEffectType());
+                    entity.removeEffect(instance.getEffect());
                     return;
                 }
 
@@ -211,61 +211,61 @@ public class BleedingHelper {
             }
 
             boolean ambient = instance.isAmbient();
-            boolean showParticles = instance.shouldShowParticles();
-            boolean showIcon = instance.shouldShowIcon();
+            boolean showParticles = instance.isVisible();
+            boolean showIcon = instance.showIcon();
 
-            entity.removeStatusEffect(instance.getEffectType());
-            entity.addStatusEffect(new StatusEffectInstance(effect, instance.isInfinite() ? -1 : dur, amp, ambient, showParticles, showIcon));
+            entity.removeEffect(instance.getEffect());
+            entity.addEffect(new MobEffectInstance(effect, instance.isInfiniteDuration() ? -1 : dur, amp, ambient, showParticles, showIcon));
         }
     }
 
-    public static boolean shouldIncreaseScorchedFactor(DamageSource source, World world){
+    public static boolean shouldIncreaseScorchedFactor(DamageSource source, Level world){
         // to make sure config option is checked on server side
-        if(!world.isClient()){
-            return source.isIn(DamageTypeTags.IS_FIRE) && ImBleeding.config.fireDamageLowersBleedingDuration;
+        if(!world.isClientSide()){
+            return source.is(DamageTypeTags.IS_FIRE) && ImBleeding.config.fireDamageLowersBleedingDuration;
         }
         return false;
     }
 
-    public static boolean shouldStopFoodHealing(PlayerEntity player){
-        return player.hasStatusEffect(ModEffects.BLEED_EFFECT);
+    public static boolean shouldStopFoodHealing(Player player){
+        return player.hasEffect(ModEffects.BLEED_EFFECT);
     }
 
     public static void applyBrokenEffect(LivingEntity entity, float damage){
         int duration;
-        if(entity.hasStatusEffect(ModEffects.BROKEN)){
-            duration = entity.getActiveStatusEffects().get(ModEffects.BROKEN).getDuration() + (int)(ImBleeding.config.brokenLengthPerHealthPointLost*damage);
+        if(entity.hasEffect(ModEffects.BROKEN)){
+            duration = entity.getActiveEffectsMap().get(ModEffects.BROKEN).getDuration() + (int)(ImBleeding.config.brokenLengthPerHealthPointLost*damage);
         }
         else {
             duration = ImBleeding.config.baseBrokenLength + (int)(ImBleeding.config.brokenLengthPerHealthPointLost*(damage-ImBleeding.config.minFallDamageTakenToGetBroken));
         }
-        entity.addStatusEffect(new StatusEffectInstance(ModEffects.BROKEN, duration, 0, false, false, true));
+        entity.addEffect(new MobEffectInstance(ModEffects.BROKEN, duration, 0, false, false, true));
     }
 
     public static boolean shouldApplyBrokenEffect(DamageSource source, float damage, LivingEntity entity){
-        return source.isIn(DamageTypeTags.IS_FALL) && (damage > ImBleeding.config.minFallDamageTakenToGetBroken || entity.hasStatusEffect(ModEffects.BROKEN));
+        return source.is(DamageTypeTags.IS_FALL) && (damage > ImBleeding.config.minFallDamageTakenToGetBroken || entity.hasEffect(ModEffects.BROKEN));
     }
 
     public static boolean canGetBleeding(LivingEntity entity) {
         // second condition to avoid unnecessary calculations
-        return entity.getType().isIn(ModEntityTypeTags.CAN_BLEED) && !entity.getType().isIn(ModEntityTypeTags.BLEED_RESISTANT_TO);
+        return entity.getType().is(ModEntityTypeTags.CAN_BLEED) && !entity.getType().is(ModEntityTypeTags.BLEED_RESISTANT_TO);
     }
 
     public static boolean canGetHealthLoss(LivingEntity entity) {
-        return !entity.getType().isIn(ModEntityTypeTags.HEALTH_LOSS_RESISTANT_TO);
+        return !entity.getType().is(ModEntityTypeTags.HEALTH_LOSS_RESISTANT_TO);
     }
 
     public static boolean canApplyBleeding(DamageSource source, float amount){
         if(amount >= 1){
-            if(source.isIn(ModDamageTypeTags.DAMAGE_APPLY_BLEED)){
-                if(source.isIn(DamageTypeTags.IS_PROJECTILE)){
-                    if(source.getSource() != null){
-                        return source.getSource().getType().isIn(ModEntityTypeTags.BLEEDING_PROJECTILES);
+            if(source.is(ModDamageTypeTags.DAMAGE_APPLY_BLEED)){
+                if(source.is(DamageTypeTags.IS_PROJECTILE)){
+                    if(source.getDirectEntity() != null){
+                        return source.getDirectEntity().getType().is(ModEntityTypeTags.BLEEDING_PROJECTILES);
                     }
                     return false;
                 }
-                else if(source.getAttacker() != null){
-                    return !source.getAttacker().getType().isIn(ModEntityTypeTags.NO_BLEEDING_APPLY_MOBS);
+                else if(source.getEntity() != null){
+                    return !source.getEntity().getType().is(ModEntityTypeTags.NO_BLEEDING_APPLY_MOBS);
                 }
                 return true;
             }
@@ -274,9 +274,9 @@ public class BleedingHelper {
     }
 
     public static boolean canApplyHealthLoss(DamageSource source){
-        if(source.isIn(ModDamageTypeTags.DAMAGE_APPLY_HEALTH_LOSS)){
-            if(source.getAttacker() != null){
-                return source.getAttacker().getType().isIn(ModEntityTypeTags.MOBS_CAUSING_HEALTH_LOSS);
+        if(source.is(ModDamageTypeTags.DAMAGE_APPLY_HEALTH_LOSS)){
+            if(source.getEntity() != null){
+                return source.getEntity().getType().is(ModEntityTypeTags.MOBS_CAUSING_HEALTH_LOSS);
             }
             return false;
         }
@@ -285,8 +285,8 @@ public class BleedingHelper {
 
 
     public static float modifyHealAmount(LivingEntity entity, float amount) {
-        if(amount > 0 && entity.hasStatusEffect(ModEffects.SCORCHED)) {
-            amount *= MathHelper.clamp(1F - (entity.getStatusEffect(ModEffects.SCORCHED).getAmplifier() + 1) * 0.2F, 0F, 1F);
+        if(amount > 0 && entity.hasEffect(ModEffects.SCORCHED)) {
+            amount *= Mth.clamp(1F - (entity.getEffect(ModEffects.SCORCHED).getAmplifier() + 1) * 0.2F, 0F, 1F);
         }
 
         return amount;
@@ -294,18 +294,18 @@ public class BleedingHelper {
 
     public static void spawnBloodParticlesServerSided(LivingEntity entity) {
         if(ImBleeding.config.enableBloodParticlesServerSided){
-            if(entity.hasStatusEffect(ModEffects.BLEED_EFFECT)){
-                if(ThreadLocalRandom.current().nextInt(100) < 5 + entity.getActiveStatusEffects().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
-                    Vec3d vec3d = entity.getVelocity();
+            if(entity.hasEffect(ModEffects.BLEED_EFFECT)){
+                if(ThreadLocalRandom.current().nextInt(100) < 5 + entity.getActiveEffectsMap().get(ModEffects.BLEED_EFFECT).getAmplifier()*5){
+                    Vec3 vec3d = entity.getDeltaMovement();
                     double x = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
                     double y = ThreadLocalRandom.current().nextFloat() + 0.1f;
                     double z = (ThreadLocalRandom.current().nextFloat()/2) - 0.25f;
-                    for (ServerPlayerEntity pl : PlayerLookup.tracking(((ServerWorld) entity.getWorld()), entity.getChunkPos())) {
+                    for (ServerPlayer pl : PlayerLookup.tracking(((ServerLevel) entity.level()), entity.chunkPosition())) {
                         ServerPlayNetworking.send(pl, new CreateBloodParticlePayload(
                                 entity.getX() + x,
                                 entity.getY() + y,
                                 entity.getZ() + z,
-                                vec3d.getY()-0.05
+                                vec3d.y()-0.05
                         ));
                     }
                 }
@@ -317,13 +317,13 @@ public class BleedingHelper {
         int amp;
         int dur;
         boolean shouldApply = false;
-        if(!entity.hasStatusEffect(ModEffects.SCORCHED)) {
+        if(!entity.hasEffect(ModEffects.SCORCHED)) {
             ((CanBleed) entity).modifyScorchedFactor(-0.0004F, false);
             amp = -1;
             dur = 0;
         }
         else {
-            StatusEffectInstance effect = entity.getStatusEffect(ModEffects.SCORCHED);
+            MobEffectInstance effect = entity.getEffect(ModEffects.SCORCHED);
             amp = effect.getAmplifier();
             dur = effect.getDuration();
         }
@@ -336,12 +336,12 @@ public class BleedingHelper {
         }
 
         if(shouldApply) {
-            entity.addStatusEffect(new StatusEffectInstance(ModEffects.SCORCHED, dur, amp, false, false, true));
+            entity.addEffect(new MobEffectInstance(ModEffects.SCORCHED, dur, amp, false, false, true));
         }
     }
 
     public static void extendScorchedDuration(LivingEntity entity, float damageTaken) {
-        if(entity.hasStatusEffect(ModEffects.SCORCHED)) {
+        if(entity.hasEffect(ModEffects.SCORCHED)) {
             // TODO przy dostawaniu damagea wydluzac czas scorcha (juz wstawilem do playerEntity i LivingEntity)
         }
     }

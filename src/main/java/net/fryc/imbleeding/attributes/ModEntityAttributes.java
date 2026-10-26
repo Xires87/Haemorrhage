@@ -1,18 +1,18 @@
 package net.fryc.imbleeding.attributes;
 
 import net.fryc.imbleeding.ImBleeding;
-import net.minecraft.entity.attribute.ClampedEntityAttribute;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class ModEntityAttributes {
 
-    public static final RegistryEntry<EntityAttribute> GENERIC_BLEEDING_PROTECTION = register(
+    public static final Holder<Attribute> GENERIC_BLEEDING_PROTECTION = register(
             "generic.bleeding_protection",
-            (new ClampedEntityAttribute("imbleeding.attribute.name.generic.bleeding_protection", 4.0, 0.0, 200.0)).setTracked(true)
+            (new RangedAttribute("imbleeding.attribute.name.generic.bleeding_protection", 4.0, 0.0, 200.0)).setSyncable(true)
     );
 
 
@@ -20,7 +20,7 @@ public class ModEntityAttributes {
     }
 
 
-    private static RegistryEntry<EntityAttribute> register(String id, EntityAttribute attribute) {
-        return Registry.registerReference(Registries.ATTRIBUTE, Identifier.of(ImBleeding.MOD_ID, id), attribute);
+    private static Holder<Attribute> register(String id, Attribute attribute) {
+        return Registry.registerForHolder(BuiltInRegistries.ATTRIBUTE, ResourceLocation.fromNamespaceAndPath(ImBleeding.MOD_ID, id), attribute);
     }
 }

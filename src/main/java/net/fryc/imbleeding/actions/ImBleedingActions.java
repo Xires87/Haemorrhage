@@ -4,38 +4,42 @@ import net.fryc.frycmua.action.ItemUseInstance;
 import net.fryc.frycmua.action.registry.UseActionRegistries;
 import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.items.custom.BalmItem;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.UseAction;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.HoneyBottleItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
 
 public class ImBleedingActions {
 
-    public static final Identifier WOUND_DISINFECT_ID = Identifier.of(ImBleeding.MOD_ID, "wound_disinfect");
+    public static final ResourceLocation WOUND_DISINFECT_ID = ResourceLocation.fromNamespaceAndPath(ImBleeding.MOD_ID, "wound_disinfect");
 
     public static final ItemUseInstance WOUND_DISINFECT_HONEY_BOTTLE = new ItemUseInstance(
             HoneyBottleItem.class /* <-- targeted class */,
             true /* <-- allow subclasses */,
             (item, world, user, hand) -> {
                 // Item#use equivalent
-                return ItemUsage.consumeHeldItem(world, user, hand);
+                return ItemUtils.startUsingInstantly(world, user, hand);
             },
             (world, user, stack, remainingUseTicks) -> {
                 // Item#tickUsage equivalent
-                stack.getItem().usageTick(world, user, stack, remainingUseTicks);
+                stack.getItem().onUseTick(world, user, stack, remainingUseTicks);
             },
             (stack, world, user, remainingUseTicks) -> {
                 // Item#onStoppedUsing equivalent
-                stack.getItem().onStoppedUsing(stack, world, user, remainingUseTicks);
+                stack.getItem().releaseUsing(stack, world, user, remainingUseTicks);
             },
             (stack, world, user) -> {
-                stack.decrementUnlessCreative(1, user);
-                if (user instanceof ServerPlayerEntity serverPlayerEntity) {
-                    Criteria.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
-                    serverPlayerEntity.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
+                stack.consume(1, user);
+                if (user instanceof ServerPlayer serverPlayerEntity) {
+                    CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
+                    serverPlayerEntity.awardStat(Stats.ITEM_USED.get(stack.getItem()));
                 }
 
                 // TODO dac tu heala a usunac w jedzeniu
@@ -44,12 +48,12 @@ public class ImBleedingActions {
                 if (stack.isEmpty()) {
                     return new ItemStack(Items.GLASS_BOTTLE);
                 } else {
-                    if (user instanceof PlayerEntity) {
-                        PlayerEntity playerEntity = (PlayerEntity)user;
-                        if (!playerEntity.isInCreativeMode()) {
+                    if (user instanceof Player) {
+                        Player playerEntity = (Player)user;
+                        if (!playerEntity.hasInfiniteMaterials()) {
                             ItemStack itemStack = new ItemStack(Items.GLASS_BOTTLE);
-                            if (!playerEntity.getInventory().insertStack(itemStack)) {
-                                playerEntity.dropItem(itemStack, false);
+                            if (!playerEntity.getInventory().add(itemStack)) {
+                                playerEntity.drop(itemStack, false);
                             }
                         }
                     }
@@ -63,7 +67,7 @@ public class ImBleedingActions {
             },
             stack -> {
                 // Item#getUseAction equivalent
-                return UseAction.NONE;
+                return UseAnim.NONE;
             },
             stack -> {
                 // Item#isUsedOnRelease equivalent
@@ -83,26 +87,26 @@ public class ImBleedingActions {
             Item::use,
             (world, user, stack, remainingUseTicks) -> {
                 // Item#tickUsage equivalent
-                stack.getItem().usageTick(world, user, stack, remainingUseTicks);
+                stack.getItem().onUseTick(world, user, stack, remainingUseTicks);
             },
             (stack, world, user, remainingUseTicks) -> {
                 // Item#onStoppedUsing equivalent
-                stack.getItem().onStoppedUsing(stack, world, user, remainingUseTicks);
+                stack.getItem().releaseUsing(stack, world, user, remainingUseTicks);
             },
             (stack, world, user) -> {
-                return stack.getItem().finishUsing(stack, world, user);
+                return stack.getItem().finishUsingItem(stack, world, user);
             },
             (stack, user) -> {
                 // Item#getMaxUseTime equivalent
-                return stack.getItem().getMaxUseTime(stack, user);
+                return stack.getItem().getUseDuration(stack, user);
             },
             stack -> {
                 // Item#getUseAction equivalent
-                return stack.getItem().getUseAction(stack);
+                return stack.getItem().getUseAnimation(stack);
             },
             stack -> {
                 // Item#isUsedOnRelease equivalent
-                return stack.getItem().isUsedOnRelease(stack);
+                return stack.getItem().useOnRelease(stack);
             },
             (player, hand) -> {
                 // this predicate is run on client side before launching the action

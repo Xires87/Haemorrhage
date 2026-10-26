@@ -4,17 +4,17 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fryc.imbleeding.ImBleeding;
 import net.fryc.imbleeding.effects.particles.ModParticles;
 import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 
 public class CreateBloodParticleS2CPacket {
 
     public static void receive(CreateBloodParticlePayload payload, ClientPlayNetworking.Context context){
-        ClientPlayerEntity player = context.player();
+        LocalPlayer player = context.player();
         if(player != null){
-            if(player.getWorld().isClient()){
+            if(player.level().isClientSide()){
                 if(ImBleeding.config.enableBloodParticlesClientSided){
-                    ClientWorld world = ((ClientWorld) player.getWorld());
+                    ClientLevel world = ((ClientLevel) player.level());
                     double x = payload.x();
                     double y = payload.y();
                     double z = payload.z();

@@ -10,21 +10,17 @@ import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
 import net.fryc.imbleeding.tags.ModEntityTypeTags;
 import net.fryc.imbleeding.util.BleedingHelper;
 import net.fryc.imbleeding.util.mixin_interfaces.CanBleed;
-import net.minecraft.entity.Attackable;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.tag.EntityTypeTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Attackable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +34,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed {
 
-    public LivingEntityMixin(EntityType<?> type, World world) {
+    public LivingEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
@@ -49,21 +45,21 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
     private float woundInfectionFactor = 0F;
 
 
-    @Inject(method = "canHaveStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;)Z", at = @At("HEAD"), cancellable = true)
-    private void undeadCantBleed(StatusEffectInstance effect, CallbackInfoReturnable<Boolean> ret) {
+    @Inject(method = "canBeAffected(Lnet/minecraft/world/effect/MobEffectInstance;)Z", at = @At("HEAD"), cancellable = true)
+    private void undeadCantBleed(MobEffectInstance effect, CallbackInfoReturnable<Boolean> ret) {
         LivingEntity dys = ((LivingEntity)(Object)this);
-        if(effect.getEffectType() == ModEffects.BLEED_EFFECT || effect.getEffectType() == ModEffects.BLEEDOUT || effect.getEffectType() == ModEffects.WOUND_INFECTION){
-            if(dys.getType().isIn(ModEntityTypeTags.BLEED_RESISTANT_TO)){
+        if(effect.getEffect() == ModEffects.BLEED_EFFECT || effect.getEffect() == ModEffects.BLEEDOUT || effect.getEffect() == ModEffects.WOUND_INFECTION){
+            if(dys.getType().is(ModEntityTypeTags.BLEED_RESISTANT_TO)){
                 ret.setReturnValue(false);
             }
         }
-        else if(effect.getEffectType() == ModEffects.HEALTH_LOSS){
-            if(dys.getType().isIn(ModEntityTypeTags.HEALTH_LOSS_RESISTANT_TO)){
+        else if(effect.getEffect() == ModEffects.HEALTH_LOSS){
+            if(dys.getType().is(ModEntityTypeTags.HEALTH_LOSS_RESISTANT_TO)){
                 ret.setReturnValue(false);
             }
         }
-        else if(effect.getEffectType() == ModEffects.SCORCHED){
-            if(dys.getType().isFireImmune()){
+        else if(effect.getEffect() == ModEffects.SCORCHED){
+            if(dys.getType().fireImmune()){
                 ret.setReturnValue(false);
             }
         }
@@ -72,13 +68,13 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
     @Inject(method = "setSprinting(Z)V", at = @At("HEAD"), cancellable = true)
     private void dontSprintWhenBroken(boolean sprinting, CallbackInfo info) {
         LivingEntity dys = ((LivingEntity)(Object)this);
-        if(sprinting && dys.hasStatusEffect(ModEffects.BROKEN)){
+        if(sprinting && dys.hasEffect(ModEffects.BROKEN)){
             info.cancel();
         }
     }
 
 
-    @Inject(method = "applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V", at = @At("TAIL"))
+    @Inject(method = "actuallyHurt(Lnet/minecraft/world/damagesource/DamageSource;F)V", at = @At("TAIL"))
     public void applyDamageEffects(DamageSource source, float amount, CallbackInfo ci) {
         LivingEntity dys = ((LivingEntity) (Object) this);
 
@@ -98,7 +94,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
             }
         }
 
-        if(BleedingHelper.shouldIncreaseScorchedFactor(source, dys.getWorld())){
+        if(BleedingHelper.shouldIncreaseScorchedFactor(source, dys.level())){
             BleedingHelper.increaseScorchedFactor(dys, amount, 0.38F);
             BleedingHelper.extendScorchedDuration(dys, amount);
         }
@@ -112,7 +108,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void spawnBloodParticlesAndManageScorchedFactor(CallbackInfo info) {
         LivingEntity dys = ((LivingEntity) (Object) this);
-        if(!dys.getWorld().isClient()){
+        if(!dys.level().isClientSide()){
             BleedingHelper.spawnBloodParticlesServerSided(dys);
             BleedingHelper.manageScorchedFactor(dys);
         }
@@ -120,20 +116,20 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
 
 
     @ModifyReturnValue(
-            method = "createLivingAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;",
+            method = "createLivingAttributes()Lnet/minecraft/world/entity/ai/attributes/AttributeSupplier$Builder;",
             at = @At("RETURN")
     )
-    private static DefaultAttributeContainer.Builder addBleedingProtectionToAttributes(DefaultAttributeContainer.Builder original) {
+    private static AttributeSupplier.Builder addBleedingProtectionToAttributes(AttributeSupplier.Builder original) {
         return original.add(ModEntityAttributes.GENERIC_BLEEDING_PROTECTION, 4.0);
     }
 
-    @Inject(method = "onStatusEffectRemoved(Lnet/minecraft/entity/effect/StatusEffectInstance;)V", at = @At(
+    @Inject(method = "onEffectRemoved(Lnet/minecraft/world/effect/MobEffectInstance;)V", at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/effect/StatusEffect;onRemoved(Lnet/minecraft/entity/attribute/AttributeContainer;)V"
+            target = "Lnet/minecraft/world/effect/MobEffect;removeAttributeModifiers(Lnet/minecraft/world/entity/ai/attributes/AttributeMap;)V"
     ))
-    private void addSlownessAfterRemovingBroken(StatusEffectInstance effect, CallbackInfo info) {
-        if(effect.getEffectType().equals(ModEffects.BROKEN)){
-            ((LivingEntity) (Object) this).addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 600, 0, false, false, true));
+    private void addSlownessAfterRemovingBroken(MobEffectInstance effect, CallbackInfo info) {
+        if(effect.getEffect().equals(ModEffects.BROKEN)){
+            ((LivingEntity) (Object) this).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600, 0, false, false, true));
         }
     }
 
@@ -144,8 +140,8 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
         return BleedingHelper.modifyHealAmount(dys, amount);
     }
 
-    @Inject(method = "readCustomDataFromNbt(Lnet/minecraft/nbt/NbtCompound;)V", at = @At("TAIL"))
-    private void readFactorsFromNbt(NbtCompound nbt, CallbackInfo info) {
+    @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
+    private void readFactorsFromNbt(CompoundTag nbt, CallbackInfo info) {
         if(nbt.contains("ScorchedFactor")) {
             this.scorchedFactor = nbt.getFloat("ScorchedFactor");
         }
@@ -154,8 +150,8 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
         }
     }
 
-    @Inject(method = "writeCustomDataToNbt(Lnet/minecraft/nbt/NbtCompound;)V", at = @At("TAIL"))
-    private void writeFactorsToNbt(NbtCompound nbt, CallbackInfo info) {
+    @Inject(method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("TAIL"))
+    private void writeFactorsToNbt(CompoundTag nbt, CallbackInfo info) {
         if(this.scorchedFactor > 0) {
             nbt.putFloat("ScorchedFactor", this.scorchedFactor);
         }
@@ -165,7 +161,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
     }
 
     public void modifyScorchedFactor(float amount, boolean multiply) {
-        this.scorchedFactor = MathHelper.clamp(
+        this.scorchedFactor = Mth.clamp(
                 multiply ? this.scorchedFactor * amount : this.scorchedFactor + amount,
                 0F,
                 4.99F
@@ -173,7 +169,7 @@ abstract class LivingEntityMixin extends Entity implements Attackable, CanBleed 
     }
 
     public void modifyWoundInfectionFactor(float amount, boolean multiply) {
-        this.woundInfectionFactor = MathHelper.clamp(
+        this.woundInfectionFactor = Mth.clamp(
                 multiply ? this.woundInfectionFactor * amount : this.woundInfectionFactor + amount,
                 0F,
                 1F

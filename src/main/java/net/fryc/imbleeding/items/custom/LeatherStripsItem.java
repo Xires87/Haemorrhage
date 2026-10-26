@@ -2,45 +2,45 @@ package net.fryc.imbleeding.items.custom;
 
 import net.fryc.imbleeding.effects.ModEffects;
 import net.fryc.imbleeding.util.BleedingHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsage;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
 
 public class LeatherStripsItem extends Item {
 
-    public LeatherStripsItem(Item.Settings settings) {
+    public LeatherStripsItem(Item.Properties settings) {
         super(settings);
     }
 
-    public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
-        super.finishUsing(stack, world, user);
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+        super.finishUsingItem(stack, world, user);
         // TODO wound infection chance increase
-        if (!world.isClient) {
+        if (!world.isClientSide) {
             BleedingHelper.modifyStatusEffect(ModEffects.BLEED_EFFECT, user, 0, -1, true);
-            if(!((PlayerEntity)user).getAbilities().creativeMode) stack.setCount(stack.getCount() - 1);
-            user.getWorld().playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, SoundCategory.PLAYERS, 1.0F, 1.0F);
-            ((PlayerEntity) user).getItemCooldownManager().set(this, 8);
+            if(!((Player)user).getAbilities().instabuild) stack.setCount(stack.getCount() - 1);
+            user.level().playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ARMOR_EQUIP_LEATHER, SoundSource.PLAYERS, 1.0F, 1.0F);
+            ((Player) user).getCooldowns().addCooldown(this, 8);
         }
         return stack;
     }
 
-    public int getMaxUseTime(ItemStack stack, LivingEntity user) {
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
         return 90;
     }
 
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
     }
 
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        return ItemUsage.consumeHeldItem(world, user, hand);
+    public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+        return ItemUtils.startUsingInstantly(world, user, hand);
     }
 }

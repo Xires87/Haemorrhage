@@ -1,36 +1,35 @@
 package net.fryc.imbleeding.effects;
 
 import net.fryc.imbleeding.ImBleeding;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WoundInfectionEffect extends StatusEffect {
+public class WoundInfectionEffect extends MobEffect {
 
-    protected WoundInfectionEffect(StatusEffectCategory statusEffectCategory, int color) {
+    protected WoundInfectionEffect(MobEffectCategory statusEffectCategory, int color) {
         super(statusEffectCategory, color);
     }
 
     @Override
-    public boolean applyUpdateEffect(LivingEntity pLivingEntity, int pAmplifier) {
-        if (!pLivingEntity.getWorld().isClient()) {
+    public boolean applyEffectTick(LivingEntity pLivingEntity, int pAmplifier) {
+        if (!pLivingEntity.level().isClientSide()) {
             if(ThreadLocalRandom.current().nextFloat() < ImBleeding.config.poisonFromInfectionChance) {
-                pLivingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, ThreadLocalRandom.current().nextInt(80, 260)));
+                pLivingEntity.addEffect(new MobEffectInstance(MobEffects.POISON, ThreadLocalRandom.current().nextInt(80, 260)));
             }
             else if(ThreadLocalRandom.current().nextFloat() < ImBleeding.config.hungerFromInfectionChance) {
-                pLivingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, ThreadLocalRandom.current().nextInt(140, 640)));
+                pLivingEntity.addEffect(new MobEffectInstance(MobEffects.HUNGER, ThreadLocalRandom.current().nextInt(140, 640)));
             }
         }
 
-        return super.applyUpdateEffect(pLivingEntity, pAmplifier);
+        return super.applyEffectTick(pLivingEntity, pAmplifier);
     }
 
     @Override
-    public boolean canApplyUpdateEffect(int pDuration, int pAmplifier) {
+    public boolean shouldApplyEffectTickThisTick(int pDuration, int pAmplifier) {
         int i;
         if (this == ModEffects.WOUND_INFECTION.value()) {
             i = 200 >> pAmplifier;

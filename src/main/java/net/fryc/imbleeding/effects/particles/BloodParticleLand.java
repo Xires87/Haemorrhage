@@ -2,41 +2,41 @@ package net.fryc.imbleeding.effects.particles;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.SimpleParticleType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.SimpleParticleType;
 
 @Environment(EnvType.CLIENT)
-public class BloodParticleLand extends SpriteBillboardParticle {
+public class BloodParticleLand extends TextureSheetParticle {
 
-    protected BloodParticleLand(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+    protected BloodParticleLand(ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
         super(clientWorld, d, e, f, g, h, i);
     }
 
     @Override
-    public ParticleTextureSheet getType() {
-        return ParticleTextureSheet.PARTICLE_SHEET_OPAQUE;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
     public void tick() {
-        if (this.age++ >= this.maxAge || this.world.getBlockState(BlockPos.ofFloored(this.x, this.y-1, this.z)).isReplaceable()) {
-            this.markDead();
+        if (this.age++ >= this.lifetime || this.level.getBlockState(BlockPos.containing(this.x, this.y-1, this.z)).canBeReplaced()) {
+            this.remove();
         }
     }
 
     @Environment(EnvType.CLIENT)
-    public static class Factory implements ParticleFactory<SimpleParticleType> {
-        private final SpriteProvider spriteProvider;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteProvider;
 
-        public Factory(SpriteProvider spriteProvider) {
+        public Factory(SpriteSet spriteProvider) {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(SimpleParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
+        public Particle createParticle(SimpleParticleType defaultParticleType, ClientLevel clientWorld, double d, double e, double f, double g, double h, double i) {
             BloodParticleLand bloodParticle = new BloodParticleLand(clientWorld, d, e, f, g, h, i);
-            bloodParticle.setSprite(this.spriteProvider);
-            bloodParticle.maxAge = 220;
+            bloodParticle.pickSprite(this.spriteProvider);
+            bloodParticle.lifetime = 220;
             bloodParticle.setColor(1.0f, 0.075f, 0.075f);
             return bloodParticle;
         }

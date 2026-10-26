@@ -7,11 +7,11 @@ import net.fryc.imbleeding.network.payloads.CreateBloodParticlePayload;
 import net.fryc.imbleeding.network.payloads.SynchronizeConfigPayload;
 import net.fryc.imbleeding.network.s2c.CreateBloodParticleS2CPacket;
 import net.fryc.imbleeding.network.s2c.SynchronizeConfigS2CPacket;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ModPackets {
-    public static final Identifier CREATE_BLOOD_PARTICLE = Identifier.of(ImBleeding.MOD_ID, "create_blood_particle");
-    public static final Identifier SYNCHRONIZE_CONFIG = Identifier.of(ImBleeding.MOD_ID, "synchronize_config");
+    public static final ResourceLocation CREATE_BLOOD_PARTICLE = ResourceLocation.fromNamespaceAndPath(ImBleeding.MOD_ID, "create_blood_particle");
+    public static final ResourceLocation SYNCHRONIZE_CONFIG = ResourceLocation.fromNamespaceAndPath(ImBleeding.MOD_ID, "synchronize_config");
 
 
     public static void registerPayloads(){
