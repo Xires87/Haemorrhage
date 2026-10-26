@@ -10,11 +10,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
-@Mixin(targets = "net.combatroll.client.RollManager")
+@Mixin(targets = "net.combat_roll.internals.RollManager")
 abstract class CombatRollCompatibilityMixin {
 
 
-    @Inject(method = "isRollAvailable(Lnet/minecraft/entity/player/PlayerEntity;)Z", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isRollAvailable(Lnet/minecraft/world/entity/player/Player;)Z", at = @At("HEAD"), cancellable = true)
     private void disableRollingWhenBroken(Player player, CallbackInfoReturnable<Boolean> ret) {
         if(ConfigHelper.isCombatRollCompatibilityEnabled(player.level())){
             if(player.hasEffect(ModEffects.BROKEN)){
